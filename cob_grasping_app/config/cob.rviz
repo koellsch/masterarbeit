@@ -730,36 +730,12 @@ Visualization Manager:
           Value: false
         bl_caster_rotation_link:
           Value: false
-        boards_before_bedroom_link:
-          Value: false
         br_caster_r_wheel_link:
           Value: false
         br_caster_rotation_link:
           Value: false
-        cabinet1:
-          Value: false
-        cabinet2:
-          Value: false
-        cabinet3:
-          Value: false
-        column:
-          Value: false
         current_object:
           Value: true
-        door_00:
-          Value: false
-        door_01:
-          Value: false
-        door_E334:
-          Value: false
-        elevator_left:
-          Value: false
-        elevator_left2:
-          Value: false
-        elevator_right:
-          Value: false
-        elevator_right2:
-          Value: false
         fl_caster_r_wheel_link:
           Value: false
         fl_caster_rotation_link:
@@ -798,25 +774,7 @@ Visualization Manager:
           Value: false
         head_center_link:
           Value: false
-        kitchen_left:
-          Value: false
-        kitchen_middle:
-          Value: false
-        kitchen_right:
-          Value: false
-        map:
-          Value: false
         odom_combined:
-          Value: false
-        origin_elevator:
-          Value: false
-        origin_landing:
-          Value: false
-        origin_office:
-          Value: false
-        pillar_ext01:
-          Value: false
-        planck_link:
           Value: false
         sensorring_base_link:
           Value: false
@@ -847,108 +805,6 @@ Visualization Manager:
         torso_center_link:
           Value: false
         torso_center_target:
-          Value: false
-        wall_00:
-          Value: false
-        wall_01_little_glas:
-          Value: false
-        wall_01_part1:
-          Value: false
-        wall_01_part2:
-          Value: false
-        wall_01_part3:
-          Value: false
-        wall_02:
-          Value: false
-        wall_03:
-          Value: false
-        wall_04:
-          Value: false
-        wall_05:
-          Value: false
-        wall_06:
-          Value: false
-        wall_07:
-          Value: false
-        wall_elv5:
-          Value: false
-        wall_elv6:
-          Value: false
-        wall_elv7:
-          Value: false
-        wall_elv8:
-          Value: false
-        wall_ext10:
-          Value: false
-        wall_ext11:
-          Value: false
-        wall_ext12:
-          Value: false
-        wall_ext13:
-          Value: false
-        wall_ext14:
-          Value: false
-        wall_ext15:
-          Value: false
-        wall_ext16:
-          Value: false
-        wall_ext17:
-          Value: false
-        wall_ext18:
-          Value: false
-        wall_ext19:
-          Value: false
-        wall_ext20:
-          Value: false
-        wall_ext21:
-          Value: false
-        wall_ext22:
-          Value: false
-        wall_ext23:
-          Value: false
-        wall_ext24:
-          Value: false
-        wall_ext25:
-          Value: false
-        wall_ext26:
-          Value: false
-        wall_ext3:
-          Value: false
-        wall_ext4:
-          Value: false
-        wall_ext5:
-          Value: false
-        wall_ext6:
-          Value: false
-        wall_ext8:
-          Value: false
-        wall_ext9:
-          Value: false
-        wall_ipa:
-          Value: false
-        wall_office_00:
-          Value: false
-        wall_office_01:
-          Value: false
-        wall_office_02:
-          Value: false
-        wall_office_03:
-          Value: false
-        wall_office_04:
-          Value: false
-        wall_office_05:
-          Value: false
-        wall_office_06:
-          Value: false
-        wall_office_07:
-          Value: false
-        wall_office_08:
-          Value: false
-        wall_office_09:
-          Value: false
-        wall_office_10:
-          Value: false
-        world:
           Value: false
       Marker Scale: 1
       Name: TF
@@ -1361,6 +1217,7 @@ Visualization Manager:
     - Class: rviz/PublishPoint
       Single click: true
       Topic: /clicked_point
+    - Class: rviz/Measure
   Value: true
   Views:
     Current:
@@ -1396,5 +1253,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1477
-  X: 55
+  X: 65
   Y: 28
