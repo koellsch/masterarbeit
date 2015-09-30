@@ -1,0 +1,13 @@
+bagfile_output: "atf_recorder/data/"
+test_suite_file: "atf_app_template/config/test_suite_example.yaml"
+test_config_file: "atf_app_template/config/test_config_example.yaml"
+robot_config_path: "atf_app_template/config/"
+
+result_json_output: "atf_presenter/data/"
+result_yaml_output: ""
+
+test_application_path: "atf_app_template/test/atf_app.test"
+additional_launch_file: "atf_app_template/launch/atf_app.launch"
+
+time_limit: 500.0
+test_repetitions: 5

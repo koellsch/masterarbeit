@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<launch>
+    <test pkg="atf_app_template" test-name="test_name" time-limit="500.0" type="atf_app.py" />
+</launch>
