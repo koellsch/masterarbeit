@@ -28,7 +28,10 @@ if(CATKIN_ENABLE_TESTING)
 
     message("Generate test files ...")
 
-    set(EXECUTE_ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/config/test_generation_config.yaml)
+    set(OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Testing/tests_generated/)
+    set(GENERATION_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/config/test_generation_config.yaml)
+
+    set(EXECUTE_ARGUMENTS ${GENERATION_CONFIG} ${OUTPUT_DIRECTORY})
     set(EXECUTE_COMMAND ${atf_core_SOURCE_DIR}/scripts/generate_tests.py ${EXECUTE_ARGUMENTS})
 
     execute_process(
@@ -36,12 +39,12 @@ if(CATKIN_ENABLE_TESTING)
         WORKING_DIRECTORY "${atf_core_SOURCE_DIR}"
     )
 
-    file(GLOB TESTS_FILES ${atf_core_SOURCE_DIR}/test/generated/recording/*.test)
+    file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}recording/*.test)
     foreach(TEST ${TESTS_FILES})
         add_rostest(${TEST})
     endforeach()
 
-    file(GLOB TESTS_FILES ${atf_core_SOURCE_DIR}/test/generated/analysing/*.test)
+    file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}analysing/*.test)
     foreach(TEST ${TESTS_FILES})
         add_rostest(${TEST})
     endforeach()
