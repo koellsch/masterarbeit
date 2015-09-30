@@ -82,3 +82,6 @@ CATKIN_IGNORE
 *.idea/*
 */results/*
 */data/*
+*test_config.yaml
+*test_suite.yaml
+*test_generation_config.yaml
