@@ -5,6 +5,7 @@ import tf
 import yaml
 import unittest
 import rostest
+import rostopic
 
 from pyassimp import pyassimp
 from copy import copy
@@ -22,7 +23,6 @@ from atf_recorder import RecordingManager
 
 
 def smooth_cartesian_path(traj):
-
     time_offset = 200000000  # 0.2s
 
     for i in xrange(len(traj.joint_trajectory.points)):
@@ -35,7 +35,7 @@ def smooth_cartesian_path(traj):
 
 def fix_velocities(traj):
     # fix trajectories to stop at the end
-    traj.joint_trajectory.points[-1].velocities = [0]*7
+    traj.joint_trajectory.points[-1].velocities = [0] * 7
 
     # fix trajectories to be slower
     speed_factor = 1.0
@@ -83,47 +83,46 @@ def scale_joint_trajectory_speed(traj, scale):
 
 
 def plan_movement(planer, start_pose, goal_pose, speed):
+    planer.set_start_state(start_pose)
 
-        planer.set_start_state(start_pose)
+    planer.clear_pose_targets()
+    planer.set_joint_value_target(goal_pose)
 
-        planer.clear_pose_targets()
-        planer.set_joint_value_target(goal_pose)
+    plan = planer.plan()
 
-        plan = planer.plan()
-
-        plan = smooth_cartesian_path(plan)
-        plan = scale_joint_trajectory_speed(plan, speed)
-        return plan
+    plan = smooth_cartesian_path(plan)
+    plan = scale_joint_trajectory_speed(plan, speed)
+    return plan
 
 
 def add_remove_object(co_operation, co_object, co_position, co_type):
-        if co_operation == "add":
-            co_object.operation = CollisionObject.ADD
-            pose = Pose()
-            pose.position.x = co_position[0]
-            pose.position.y = co_position[1]
-            pose.position.z = co_position[2]
-            pose.orientation.x = co_position[3]
-            pose.orientation.y = co_position[4]
-            pose.orientation.z = co_position[5]
-            pose.orientation.w = co_position[6]
+    if co_operation == "add":
+        co_object.operation = CollisionObject.ADD
+        pose = Pose()
+        pose.position.x = co_position[0]
+        pose.position.y = co_position[1]
+        pose.position.z = co_position[2]
+        pose.orientation.x = co_position[3]
+        pose.orientation.y = co_position[4]
+        pose.orientation.z = co_position[5]
+        pose.orientation.w = co_position[6]
 
-            if co_type == "mesh":
-                co_object.mesh_poses.append(pose)
-            elif co_type == "primitive":
-                co_object.primitive_poses.append(pose)
-            else:
-                rospy.logerr("Invalid type")
-        elif co_operation == "remove":
-            co_object.operation = CollisionObject.REMOVE
-            planning_scene.world.collision_objects[:] = []
+        if co_type == "mesh":
+            co_object.mesh_poses.append(pose)
+        elif co_type == "primitive":
+            co_object.primitive_poses.append(pose)
         else:
-            rospy.logerr("Invalid command")
-            return
+            rospy.logerr("Invalid type")
+    elif co_operation == "remove":
+        co_object.operation = CollisionObject.REMOVE
+        planning_scene.world.collision_objects[:] = []
+    else:
+        rospy.logerr("Invalid command")
+        return
 
-        planning_scene.world.collision_objects.append(co_object)
-        pub_planning_scene.publish(planning_scene)
-        rospy.sleep(0.1)
+    planning_scene.world.collision_objects.append(co_object)
+    pub_planning_scene.publish(planning_scene)
+    rospy.sleep(0.1)
 
 
 class SceneManager(smach.State):
@@ -371,8 +370,8 @@ class SceneManager(smach.State):
                                                                                       feedback.pose.position.y,
                                                                                       feedback.pose.position.z]
 
-            rospy.loginfo("Position " + feedback.marker_name + ": x = " + str(feedback.pose.position.x)
-                          + " | y = " + str(feedback.pose.position.y) + " | z = " + str(feedback.pose.position.z))
+            rospy.loginfo("Position " + feedback.marker_name + ": x = " + str(feedback.pose.position.x) +
+                          " | y = " + str(feedback.pose.position.y) + " | z = " + str(feedback.pose.position.z))
             self.server.applyChanges()
 
             self.positions_changed = True
@@ -398,8 +397,8 @@ class SceneManager(smach.State):
 
         self.positions_changed = True
 
-        rospy.loginfo("Added waypoint '" + str(name) + "' at position: x: " + str(position.x) + " | y: "
-                      + str(position.y) + " | z: " + str(position.z))
+        rospy.loginfo("Added waypoint '" + str(name) + "' at position: x: " + str(position.x) + " | y: " +
+                      str(position.y) + " | z: " + str(position.z))
 
     def delete_waypoint(self, feedback):
         name = feedback.marker_name
@@ -519,9 +518,9 @@ class SceneManager(smach.State):
         scale = self.scene_data[self.scenario]["environment"]["scaling"]
         environment.meshes.append(self.load_mesh(filename, scale))
 
-        q = quaternion_from_euler(self.scene_data[self.scenario]["environment"]["orientation"][0]/180.0 * math.pi,
-                                  self.scene_data[self.scenario]["environment"]["orientation"][1]/180.0 * math.pi,
-                                  self.scene_data[self.scenario]["environment"]["orientation"][2]/180.0 * math.pi)
+        q = quaternion_from_euler((self.scene_data[self.scenario]["environment"]["orientation"][0] / 180.0) * math.pi,
+                                  (self.scene_data[self.scenario]["environment"]["orientation"][1] / 180.0) * math.pi,
+                                  (self.scene_data[self.scenario]["environment"]["orientation"][2] / 180.0) * math.pi)
 
         position = [self.scene_data[self.scenario]["environment"]["position"][0],
                     self.scene_data[self.scenario]["environment"]["position"][1],
@@ -530,7 +529,7 @@ class SceneManager(smach.State):
 
         add_remove_object("add", copy(environment), position, "mesh")
 
-        if len(self.scene_data[self.scenario]["environment"]["additional_obstacles"]) != 0\
+        if len(self.scene_data[self.scenario]["environment"]["additional_obstacles"]) != 0 \
                 and self.spawn_obstacles != "none":
             for item in self.scene_data[self.scenario]["environment"]["additional_obstacles"]:
                 if self.spawn_obstacles == "all":
@@ -545,9 +544,9 @@ class SceneManager(smach.State):
                     object_shape.dimensions.append(item["size"][2])  # Z
                     collision_object.primitives.append(object_shape)
 
-                    q = quaternion_from_euler(item["orientation"][0]/180.0 * math.pi,
-                                              item["orientation"][1]/180.0 * math.pi,
-                                              item["orientation"][2]/180.0 * math.pi)
+                    q = quaternion_from_euler((item["orientation"][0] / 180.0) * math.pi,
+                                              (item["orientation"][1] / 180.0) * math.pi,
+                                              (item["orientation"][2] / 180.0) * math.pi)
 
                     position = [item["position"][0], item["position"][1], item["position"][2], q[0], q[1], q[2], q[3]]
                     add_remove_object("add", collision_object, position, "primitive")
@@ -564,9 +563,9 @@ class SceneManager(smach.State):
                     object_shape.dimensions.append(item["size"][2])  # Z
                     collision_object.primitives.append(object_shape)
 
-                    q = quaternion_from_euler(item["orientation"][0]/180.0 * math.pi,
-                                              item["orientation"][1]/180.0 * math.pi,
-                                              item["orientation"][2]/180.0 * math.pi)
+                    q = quaternion_from_euler((item["orientation"][0] / 180.0) * math.pi,
+                                              (item["orientation"][1] / 180.0) * math.pi,
+                                              (item["orientation"][2] / 180.0) * math.pi)
 
                     position = [item["position"][0], item["position"][1], item["position"][2], q[0], q[1], q[2], q[3]]
                     add_remove_object("add", collision_object, position, "primitive")
@@ -717,7 +716,7 @@ class EndPosition(smach.State):
         object_shape = SolidPrimitive()
         object_shape.type = userdata.object["shape"]
         object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-        object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+        object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
         collision_object.primitives.append(object_shape)
         add_remove_object("remove", copy(collision_object), "", "")
 
@@ -824,9 +823,9 @@ class Planning(smach.State):
             userdata.cs_orientation[3] = 1.0
 
         if userdata.cs_orientation[3] == 1.0:
-            userdata.cs_orientation[2] += 5.0 / 180.0 * math.pi
+            userdata.cs_orientation[2] += (5.0 / 180.0) * math.pi
         elif userdata.cs_orientation[3] == -1.0:
-            userdata.cs_orientation[2] -= 5.0 / 180.0 * math.pi
+            userdata.cs_orientation[2] -= (5.0 / 180.0) * math.pi
 
         if userdata.active_arm == "left":
             userdata.cs_orientation[0] = math.pi
@@ -1021,7 +1020,7 @@ class Planning(smach.State):
             object_shape = SolidPrimitive()
             object_shape.type = userdata.object["shape"]
             object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-            object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+            object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
             object_pose = Pose()
             object_pose.orientation.w = 1.0
@@ -1141,7 +1140,7 @@ class Planning(smach.State):
             object_shape = SolidPrimitive()
             object_shape.type = userdata.object["shape"]
             object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-            object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+            object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
             object_pose = Pose()
             object_pose.orientation.w = 1.0
@@ -1258,7 +1257,7 @@ class Planning(smach.State):
             object_shape = SolidPrimitive()
             object_shape.type = userdata.object["shape"]
             object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-            object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+            object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
             object_pose = Pose()
             object_pose.orientation.w = 1.0
@@ -1430,7 +1429,7 @@ class Planning(smach.State):
         for i in xrange(self.last_state, (len(userdata.arm_positions["poses"]) - 2)):
 
             (config, error_code) = sss.compose_trajectory("arm_" + userdata.active_arm,
-                                                          userdata.arm_positions["poses"][i+1])
+                                                          userdata.arm_positions["poses"][i + 1])
             if error_code != 0:
                 rospy.logerr("unable to parse configuration")
                 return False
@@ -1441,7 +1440,7 @@ class Planning(smach.State):
             if i == 0:
                 start_state.joint_state.position = self.planer.get_current_joint_values()
             else:
-                start_state.joint_state.position =\
+                start_state.joint_state.position = \
                     userdata.computed_trajectories[i - 1].joint_trajectory.points[-1].positions
 
             if 2 <= i <= 4:
@@ -1449,7 +1448,7 @@ class Planning(smach.State):
                 object_shape = SolidPrimitive()
                 object_shape.type = userdata.object["shape"]
                 object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-                object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+                object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
                 object_pose = Pose()
                 object_pose.orientation.w = 1.0
@@ -1540,7 +1539,7 @@ class Execution(smach.State):
         self.planer.execute(userdata.computed_trajectories[4])
         # self.move_gripper(userdata, "gripper_" + userdata.active_arm, "open")
         if userdata.planning_method == "joint":
-            userdata.joint_goal_position =\
+            userdata.joint_goal_position = \
                 self.planer.get_current_pose(self.planer.get_end_effector_link()).pose.position
         rospy.loginfo("-------- Retreat -------")
         self.planer.execute(userdata.computed_trajectories[5])
@@ -1630,10 +1629,10 @@ class SwitchTargets(smach.State):
 
     def execute(self, userdata):
         if userdata.planning_method != "joint":
-            (userdata.arm_positions["right"]["start"], userdata.arm_positions["right"]["goal"]) =\
+            (userdata.arm_positions["right"]["start"], userdata.arm_positions["right"]["goal"]) = \
                 self.switch_values(userdata.arm_positions["right"]["start"],
                                    userdata.arm_positions["right"]["goal"])
-            (userdata.arm_positions["left"]["start"], userdata.arm_positions["left"]["goal"]) =\
+            (userdata.arm_positions["left"]["start"], userdata.arm_positions["left"]["goal"]) = \
                 self.switch_values(userdata.arm_positions["left"]["start"],
                                    userdata.arm_positions["left"]["goal"])
 
@@ -1664,18 +1663,16 @@ class Error(smach.State):
                              input_keys=['error_message'])
 
     def execute(self, userdata):
-
         rospy.logerr(userdata.error_message)
         return "finished"
 
 
 class SM(smach.StateMachine):
     def __init__(self):
-
         smach.StateMachine.__init__(self, outcomes=['ended'])
 
         # ---- INITIALIZATION ----
-        global sss, mgc_left, mgc_right, planning_scene, planning_scene_interface, pub_planning_scene,\
+        global sss, mgc_left, mgc_right, planning_scene, planning_scene_interface, pub_planning_scene, \
             planning_recorder, execution_recorder, abort_execution
         sss = simple_script_server()
         mgc_left = MoveGroupCommander("arm_left")
@@ -1733,14 +1730,12 @@ class SM(smach.StateMachine):
         self.userdata.object = {}
 
         if self.userdata.planning_method != "joint":
-
             # ---- TF BROADCASTER ----
             self.tf_listener = tf.TransformListener()
             self.br = tf.TransformBroadcaster()
             rospy.Timer(rospy.Duration.from_sec(0.01), self.broadcast_tf)
 
         with self:
-
             # ---- STATES ----
             smach.StateMachine.add('SCENE_MANAGER', SceneManager(),
                                    transitions={'succeeded': 'START_POSITION',
@@ -1789,13 +1784,32 @@ class SM(smach.StateMachine):
 
 
 class TestRecording(unittest.TestCase):
-
     def setUp(self):
         self.sm = SM()
 
+        robot_config = self.load_data(rospy.get_param('/robot_config'))
+        self.topics = robot_config['wait_for_topics']
+        self.services = robot_config['wait_for_services']
+
     def test_Recording(self):
+        # Wait for topics and services
+        for topic in self.topics:
+            rospy.wait_for_message(topic, rostopic.get_topic_class(topic, blocking=True)[0], timeout=None)
+
+        for service in self.services:
+            rospy.wait_for_service(service, timeout=None)
 
         self.sm.execute()
+
+    @staticmethod
+    def load_data(filename):
+        rospy.loginfo("Reading data from yaml file...")
+
+        with open(filename, 'r') as stream:
+            doc = yaml.load(stream)
+
+        return doc
+
 
 if __name__ == '__main__':
     rospy.init_node('test_recording')

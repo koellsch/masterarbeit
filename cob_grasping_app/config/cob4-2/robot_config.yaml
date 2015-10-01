@@ -3,3 +3,5 @@ path_length:
 obstacle_distance:
   topics: ["/atf/obstacle_distance"]
 robot_bringup_launch: "cob_bringup_sim/launch/robot.launch"
+wait_for_topics: ["/joint_states"]
+wait_for_services: ["/get_planning_scene"]
