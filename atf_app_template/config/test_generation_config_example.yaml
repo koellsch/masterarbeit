@@ -1,13 +1,13 @@
-bagfile_output: "atf_recorder/data/"
-test_suite_file: "atf_app_template/config/test_suite_example.yaml"
-test_config_file: "atf_app_template/config/test_config_example.yaml"
-robot_config_path: "atf_app_template/config/"
+bagfile_output: "atf_recorder/data/"                                 # Folder for bagfile output
+test_suite_file: "atf_app_template/config/test_suite_example.yaml"   # Path of the test_suite file
+test_config_file: "atf_app_template/config/test_config_example.yaml" # Path of the test_config file
+robot_config_path: "atf_app_template/config/"                        # Folder which contains the robot_config files
 
-result_json_output: "atf_presenter/data/"
-result_yaml_output: ""
+result_json_output: "atf_presenter/data/"                            # Folder for the json files output
+result_yaml_output: ""                                               # Folder for the yaml files output
 
-test_application_path: "atf_app_template/test/atf_app.test"
-additional_launch_file: "atf_app_template/launch/atf_app.launch"
+test_application_path: "atf_app_template/test/atf_app.test"          # Path of the application test file
+additional_launch_file: "atf_app_template/launch/atf_app.launch"     # Path of the additional launch file
 
-time_limit: 500.0
-test_repetitions: 5
+time_limit: 500.0                                                    # Time limit in seconds
+test_repetitions: 5                                                  # Number of repetitions per test

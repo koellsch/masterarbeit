@@ -1,3 +1,4 @@
+# Definition of various test suites
 testsuite_1:
   scene_config:
     - "scene_1"
