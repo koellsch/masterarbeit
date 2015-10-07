@@ -4,7 +4,7 @@ project(atf_test)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS rospy
+find_package(catkin REQUIRED COMPONENTS rospy atf_core
 )
 
 
@@ -40,8 +40,42 @@ install(PROGRAMS scripts/publish_tf.py
 
 if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
-    # foreach(robot ${robotlist})
-    add_rostest(test/test_recording.test)
-    add_rostest(test/test_analysing.test)
-    # endforeach()
+
+    message("Generate test files ...")
+
+    set(OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Testing/tests_generated/)
+    set(GENERATION_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/config/test_generation_config.yaml)
+
+    set(EXECUTE_ARGUMENTS ${GENERATION_CONFIG} ${OUTPUT_DIRECTORY})
+    set(EXECUTE_COMMAND ${atf_core_SOURCE_DIR}/scripts/generate_tests.py ${EXECUTE_ARGUMENTS})
+
+    execute_process(
+        COMMAND ${EXECUTE_COMMAND}
+        WORKING_DIRECTORY ${atf_core_SOURCE_DIR}
+    )
+
+    file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}recording/*.test)
+    foreach(TEST ${TESTS_FILES})
+        add_rostest(${TEST}
+            WORKING_DIRECTORY
+                ${CMAKE_CURRENT_SOURCE_DIR}
+            PACKAGE
+                ${PROJECT_NAME}
+            PKGDIR
+                ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+    endforeach()
+
+    file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}analysing/*.test)
+    foreach(TEST ${TESTS_FILES})
+        add_rostest(${TEST}
+            WORKING_DIRECTORY
+                ${CMAKE_CURRENT_SOURCE_DIR}
+            PACKAGE
+                ${PROJECT_NAME}
+            PKGDIR
+                ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+    endforeach()
+
 endif()

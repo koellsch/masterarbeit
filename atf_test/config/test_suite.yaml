@@ -1,0 +1,7 @@
+testsuite_1:
+  scene_config:
+    - "scene_1"
+  test_config:
+    - "test_1"
+  robot:
+    - "robot"

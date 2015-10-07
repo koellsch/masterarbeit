@@ -10,7 +10,7 @@ from atf_recorder import RecordingManager
 
 class AtfApp:
     def __init__(self):
-        self.recorder = RecordingManager('testblock')
+        self.recorder = RecordingManager('testblock_name')
         pass
 
     def execute(self):
