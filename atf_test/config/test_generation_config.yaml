@@ -1,0 +1,13 @@
+bagfile_output: "atf_test/data/"
+test_suite_file: "atf_test/config/test_suite.yaml"
+test_config_file: "atf_test/config/test_config.yaml"
+robot_config_path: "atf_test/config/"
+
+result_json_output: "atf_test/results/"
+result_yaml_output: ""
+
+test_application_path: "atf_test/test/publish_tf.test"
+additional_launch_file: ""
+
+time_limit: 100.0
+test_repetitions: 5
