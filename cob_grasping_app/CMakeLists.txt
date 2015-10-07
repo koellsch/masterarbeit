@@ -23,7 +23,7 @@ install(PROGRAMS scripts/grasping_app.py
 ## Testing ##
 #############
 
-if(FALSE)
+if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
 
     message("Generate test files ...")
