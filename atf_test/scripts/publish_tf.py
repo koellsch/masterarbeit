@@ -33,13 +33,13 @@ class PublishTf:
 
         recorder_0.start()
         recorder_1.start()
-        self.pub_line(length=-1, time=1)
+        self.pub_line(length=-1, time=5)
         recorder_1.stop()
         recorder_2.start()
-        self.pub_quadrat(length=2, time=1)
+        self.pub_quadrat(length=2, time=10)
         recorder_2.stop()
         recorder_3.start()
-        self.pub_circ(radius=2, time=1)
+        self.pub_circ(radius=2, time=5)
         recorder_3.stop()
         recorder_0.stop()
 
