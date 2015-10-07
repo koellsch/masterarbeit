@@ -41,11 +41,25 @@ if(FALSE)
 
     file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}recording/*.test)
     foreach(TEST ${TESTS_FILES})
-        add_rostest(${TEST})
+        add_rostest(${TEST}
+            WORKING_DIRECTORY
+                ${CMAKE_CURRENT_SOURCE_DIR}
+            PACKAGE
+                ${PROJECT_NAME}
+            PKGDIR
+                ${CMAKE_CURRENT_SOURCE_DIR}
+        )
     endforeach()
 
     file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}analysing/*.test)
     foreach(TEST ${TESTS_FILES})
-        add_rostest(${TEST})
+        add_rostest(${TEST}
+            WORKING_DIRECTORY
+                ${CMAKE_CURRENT_SOURCE_DIR}
+            PACKAGE
+                ${PROJECT_NAME}
+            PKGDIR
+                ${CMAKE_CURRENT_SOURCE_DIR}
+        )
     endforeach()
 endif()
