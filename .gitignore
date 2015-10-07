@@ -80,7 +80,7 @@ CATKIN_IGNORE
 *.bag
 */.idea/*
 *.idea/*
-*/results/*
+*.json
 */data/*
 *test_config.yaml
 *test_suite.yaml
