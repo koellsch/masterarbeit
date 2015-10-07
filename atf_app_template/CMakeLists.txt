@@ -145,7 +145,7 @@ install(PROGRAMS scripts/atf_app.py
 ## Testing ##
 #############
 
-if(CATKIN_ENABLE_TESTING)
+if(FALSE)
     find_package(rostest REQUIRED)
 
     message("Generate test files ...")
