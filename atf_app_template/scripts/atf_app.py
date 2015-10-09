@@ -17,7 +17,7 @@ class AtfApp:
         # Example for recorder usage
         self.recorder.start()
         self.recorder.error()
-        self.recorder.stopp()
+        self.recorder.stop()
         pass
 
 
