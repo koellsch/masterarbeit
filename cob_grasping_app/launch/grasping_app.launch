@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+    <include file="$(find atf_server)/launch/atf_server.launch">
+        <arg name="test_status_list" value="/home/fmw-fk/catkin_ws/build/masterarbeit/cob_grasping_app/Testing/tests_generated/test_status.yaml"/>
+    </include>
 
     <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
     <param name="robot_config" value="$(find cob_grasping_app)/config/$(arg robot)/robot_config.yaml"/>
@@ -7,6 +10,7 @@
     <param name="number_of_tests" value="1"/>
 
     <!-- Node for publishing the minimal distance to obstacles -->
+    <rosparam command="load" file="$(find cob_grasping_app)/config/$(arg robot)/robot_config.yaml" ns="obstacle_distance_node"/>
     <node name="obstacle_distance_node" output="screen" pkg="atf_recorder_plugins" type="obstacle_distance_node"/>
 
     <!-- Testsuite params -->
