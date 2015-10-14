@@ -1,20 +1,32 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(cob_grasping_app)
 
-find_package(catkin REQUIRED COMPONENTS rospy atf_core)
+find_package(catkin REQUIRED COMPONENTS
+    rospy
+    atf_core
+)
 
 #catkin_python_setup()
 
 ###################################
 ## catkin specific configuration ##
 ###################################
-catkin_package(CATKIN_DEPENDS rospy)
+
+catkin_package(CATKIN_DEPENDS
+    rospy
+)
 
 ###########
 ## Build ##
 ###########
 
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(
+    ${catkin_INCLUDE_DIRS}
+)
+
+#############
+## Install ##
+#############
 
 install(PROGRAMS scripts/grasping_app.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
