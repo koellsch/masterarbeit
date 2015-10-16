@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find atf_server)/launch/atf_server.launch">
+    <include file="$(find atf_status_server)/launch/atf_status_server.launch">
         <arg name="test_status_list" value="/home/fmw-fk/catkin_ws/build/masterarbeit/cob_grasping_app/Testing/tests_generated/test_status.yaml"/>
     </include>
 
