@@ -25,6 +25,8 @@ script:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
+  - cd $CATKIN_WS_SRC
+  - git clone git@github.com/koellsch/atf
   - cd $CATKIN_WS
   - catkin init
   # Enable install space
