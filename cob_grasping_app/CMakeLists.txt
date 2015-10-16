@@ -61,11 +61,11 @@ if(CATKIN_ENABLE_TESTING)
             PKGDIR
                 ${CMAKE_CURRENT_SOURCE_DIR}
         )
-    endforeach()
 
-    file(GLOB TESTS_FILES ${OUTPUT_DIRECTORY}analysing/*.test)
-    foreach(TEST ${TESTS_FILES})
-        add_rostest(${TEST}
+        string(REPLACE "/" ";" LIST ${TEST})
+        list(GET LIST -1 TEST_NAME)
+
+        add_rostest(${OUTPUT_DIRECTORY}analysing/${TEST_NAME}
             WORKING_DIRECTORY
                 ${CMAKE_CURRENT_SOURCE_DIR}
             PACKAGE
