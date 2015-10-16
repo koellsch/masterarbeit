@@ -29,8 +29,10 @@ install:
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
 script:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
-  - cd $CATKIN_WS
+  - cd $CATKIN_WS_SRC
   - catkin_init_workspace
+  - source $CATKIN_WS/devel/setup.bash
+  - cd $CATKIN_WS
   - catkin_make
   # - catkin init
   # Enable install space
