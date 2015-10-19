@@ -9,6 +9,10 @@ env:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
     - CI_ROS_DISTRO="indigo"
+    - PACKAGE_NAME=atf_test
+    - REPO_NAME=masterarbeit
+    - ROBOT=cob4-2
+    - ROBOT_ENV=empty
 #  matrix:
 #    - CI_ROS_DISTRO="indigo"
 #    - CI_ROS_DISTRO="jade"
@@ -22,18 +26,21 @@ install:
   
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
-  - cd $CATKIN_WS_SRC
-  - git clone https://github.com/koellsch/atf_clone
   
   # Use rosdep to install all dependencies (including ROS itself)
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
 script:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+  - sudo apt-get install ros-indigo-rosbridge-suite python-dev gcc python-pip curl
+  - sudo pip install psutil
   - cd $CATKIN_WS_SRC
   - catkin_init_workspace
-  - source $CATKIN_WS/devel/setup.bash
   - cd $CATKIN_WS
   - catkin_make
+  - source devel/setup.bash
+  - catkin_make test --force-cmake --pkg $PACKAGE_NAME
+  - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
+  - ./dropbox_uploader.sh upload ../results/* .
   # - catkin init
   # Enable install space
   #- catkin config --install
