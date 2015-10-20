@@ -9,5 +9,6 @@ result_yaml_output: ""
 test_application_path: "atf_test/test/publish_tf.test"
 additional_launch_file: ""
 
-time_limit: 100.0
+time_limit_recording: 100.0
+time_limit_analysing: 100.0
 test_repetitions: 5
