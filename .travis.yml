@@ -27,8 +27,6 @@ install:
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
 
-  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
-
   - cd $CATKIN_WS_SRC
   - catkin_init_workspace
   - wstool init
@@ -39,21 +37,17 @@ install:
   - rm -rf masterarbeit/cob_grasping_app
   - sudo rosdep init
   - rosdep update
+
+  # Use rosdep to install all dependencies (including ROS itself)
+  - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
+  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+script:
+  - sudo apt-get install ros-indigo-rosbridge-suite python-dev gcc python-pip curl
+  - sudo pip install psutil
   - cd $CATKIN_WS
   - rosdep install --from-paths src -i -y
   - catkin_make
   - source $CATKIN_WS/devel/setup.bash
-
-  # Use rosdep to install all dependencies (including ROS itself)
-  - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
-script:
-  - sudo apt-get install ros-indigo-rosbridge-suite python-dev gcc python-pip curl
-  - sudo pip install psutil
-  - cd $CATKIN_WS_SRC
-  - catkin_init_workspace
-  - cd $CATKIN_WS
-  - catkin_make
-  - source devel/setup.bash
   - catkin_make test --force-cmake --pkg $PACKAGE_NAME
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
   - ./dropbox_uploader.sh upload ../results/* .
