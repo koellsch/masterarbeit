@@ -27,9 +27,6 @@ install:
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
 
-  # Use rosdep to install all dependencies (including ROS itself)
-  - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
-script:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
 
   - cd $CATKIN_WS_SRC
@@ -47,6 +44,9 @@ script:
   - catkin_make
   - source $CATKIN_WS/devel/setup.bash
 
+  # Use rosdep to install all dependencies (including ROS itself)
+  - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
+script:
   - sudo apt-get install ros-indigo-rosbridge-suite python-dev gcc python-pip curl
   - sudo pip install psutil
   - cd $CATKIN_WS_SRC
