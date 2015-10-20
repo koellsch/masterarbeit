@@ -62,16 +62,16 @@ if(CATKIN_ENABLE_TESTING)
                 ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
-        string(REPLACE "/" ";" LIST ${TEST})
-        list(GET LIST -1 TEST_NAME)
+        #string(REPLACE "/" ";" LIST ${TEST})
+        #list(GET LIST -1 TEST_NAME)
 
-        add_rostest(${OUTPUT_DIRECTORY}analysing/${TEST_NAME}
-            WORKING_DIRECTORY
-                ${CMAKE_CURRENT_SOURCE_DIR}
-            PACKAGE
-                ${PROJECT_NAME}
-            PKGDIR
-                ${CMAKE_CURRENT_SOURCE_DIR}
-        )
+        #add_rostest(${OUTPUT_DIRECTORY}analysing/${TEST_NAME}
+        #    WORKING_DIRECTORY
+        #        ${CMAKE_CURRENT_SOURCE_DIR}
+        #    PACKAGE
+        #        ${PROJECT_NAME}
+        #    PKGDIR
+        #        ${CMAKE_CURRENT_SOURCE_DIR}
+        #)
     endforeach()
 endif()
