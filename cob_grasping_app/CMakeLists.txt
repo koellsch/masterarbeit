@@ -38,7 +38,7 @@ install(PROGRAMS scripts/grasping_app.py
 if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
 
-    message("Generate test files ...")
+    message(STATUS "Generate test files ...")
 
     set(OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/Testing/tests_generated/)
     set(GENERATION_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/config/test_generation_config.yaml)

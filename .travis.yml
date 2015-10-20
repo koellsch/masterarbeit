@@ -9,18 +9,21 @@ env:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
     - CI_ROS_DISTRO="indigo"
-    - PACKAGE_NAME=atf_test
+    - PACKAGE_NAME=cob_grasping_app
+    - FILE_OUTPUT=atf/atf_presenter/data
     - REPO_NAME=masterarbeit
     - ROBOT=cob4-2
     - ROBOT_ENV=empty
-#  matrix:
-#    - CI_ROS_DISTRO="indigo"
-#    - CI_ROS_DISTRO="jade"
+
+#branches:
+#  only:
+#    - master
+#    - stable
 install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-rosdep python-catkin-tools python-wstool python-ros*
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-cob-* ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
   - sudo rosdep init
   - rosdep update
   
@@ -28,35 +31,21 @@ install:
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
 
   - cd $CATKIN_WS_SRC
-  - catkin_init_workspace
-  - wstool init
-  - wstool merge -y https://raw.githubusercontent.com/ipa320/setup/master/repositories/cob_indigo_bringup.rosinstall
-  - wstool update
-  - git clone https://github.com/ipa320/cob_manipulation.git
   - git clone https://github.com/koellsch/atf.git
-  - rm -rf masterarbeit/cob_grasping_app
-  - sudo rosdep init
-  - rosdep update
+  - rm -rf masterarbeit/atf_test/
 
   # Use rosdep to install all dependencies (including ROS itself)
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
-script:
-  - sudo apt-get install ros-indigo-rosbridge-suite python-dev gcc python-pip curl
-  - sudo pip install psutil
+
+  - cd $CATKIN_WS_SRC
+  - catkin_init_workspace
   - cd $CATKIN_WS
-  - rosdep install --from-paths src -i -y
   - catkin_make
-  - source $CATKIN_WS/devel/setup.bash
+  - source devel/setup.bash
+script:
+  - sudo pip install psutil
   - catkin_make test --force-cmake --pkg $PACKAGE_NAME
+  #- catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
-  - ./dropbox_uploader.sh upload ../results/* .
-  # - catkin init
-  # Enable install space
-  #- catkin config --install
-  # Build [and Install] packages
-  #- catkin build --limit-status-rate 0.1 --no-notify -DCMAKE_BUILD_TYPE=Release
-  # Build tests
-  #- catkin build --limit-status-rate 0.1 --no-notify --make-args tests
-  # Run tests
-  #- catkin run_tests
+  - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .
