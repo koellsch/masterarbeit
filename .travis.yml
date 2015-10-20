@@ -40,7 +40,7 @@ install:
   - source devel/setup.bash
 script:
   - sudo pip install psutil
-  #- catkin_make test --force-cmake --pkg $PACKAGE_NAME
-  - catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake
+  - catkin_make test --force-cmake --pkg $PACKAGE_NAME
+  #- catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
   - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .
