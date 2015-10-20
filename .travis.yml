@@ -9,7 +9,8 @@ env:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
     - CI_ROS_DISTRO="indigo"
-    - PACKAGE_NAME=atf_test
+    - PACKAGE_NAME=cob_grasping_app
+    - FILE_OUTPUT=atf/atf_presenter/data
     - REPO_NAME=masterarbeit
     - ROBOT=cob4-2
     - ROBOT_ENV=empty
@@ -29,8 +30,7 @@ install:
 
   - cd $CATKIN_WS_SRC
   - git clone https://github.com/koellsch/atf.git
-  - rm -rf masterarbeit/cob_grasping_app/
-  - rosdep update
+  - rm -rf masterarbeit/atf_test/
 
   # Use rosdep to install all dependencies (including ROS itself)
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
@@ -46,7 +46,7 @@ script:
   - sudo pip install psutil
   - catkin_make test --force-cmake --pkg $PACKAGE_NAME
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
-  - ./dropbox_uploader.sh upload ../results/* .
+  - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .
   # - catkin init
   # Enable install space
   #- catkin config --install
