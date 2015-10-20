@@ -34,7 +34,6 @@ install:
   - git clone https://github.com/ipa320/cob_manipulation.git
   - git clone https://github.com/koellsch/atf.git
   - rm -rf masterarbeit/cob_grasping_app
-  - sudo rosdep init
   - rosdep update
 
   # Use rosdep to install all dependencies (including ROS itself)
