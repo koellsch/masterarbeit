@@ -28,7 +28,6 @@ install:
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
 
   - cd $CATKIN_WS_SRC
-  - catkin_init_workspace
   - wstool init
   - wstool merge -y https://raw.githubusercontent.com/ipa320/setup/master/repositories/cob_indigo_bringup.rosinstall
   - wstool update
@@ -41,6 +40,7 @@ install:
   # Use rosdep to install all dependencies (including ROS itself)
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+  - catkin_init_workspace
 script:
   - sudo apt-get install ros-indigo-rosbridge-suite python-dev gcc python-pip curl
   - sudo pip install psutil
