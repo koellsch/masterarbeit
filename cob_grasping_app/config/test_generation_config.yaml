@@ -9,5 +9,8 @@ result_yaml_output: ""
 test_application_path: "cob_grasping_app/test/grasping_app.test"
 additional_launch_file: "cob_grasping_app/launch/move_group.launch"
 
-time_limit: 500.0
+#type_of_robot_selection: "arg"
+#type_of_scene_selection: "arg"
+
+time_limit: 800.0
 test_repetitions: 5
