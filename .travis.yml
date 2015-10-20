@@ -18,7 +18,7 @@ install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-cob-* ros-indigo-rosbridge-suite python-dev gcc python-pip curl
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-cob-* ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
   - sudo rosdep init
   - rosdep update
   
@@ -27,9 +27,6 @@ install:
 
   - cd $CATKIN_WS_SRC
   - git clone https://github.com/koellsch/atf.git
-  - cd atf
-  - git checkout feature_testing
-  - cd ..
   - rm -rf masterarbeit/atf_test/
 
   # Use rosdep to install all dependencies (including ROS itself)
