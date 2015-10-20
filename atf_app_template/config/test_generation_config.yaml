@@ -9,5 +9,5 @@ result_yaml_output: ""                                               # Folder fo
 test_application_path: "atf_app_template/test/atf_app.test"          # Path of the application test file
 additional_launch_file: "atf_app_template/launch/atf_app.launch"     # Path of the additional launch file
 
-time_limit: 500.0                                                    # Time limit in seconds
+time_limit: 500.0                                                    # Time limit in seconds (travis-ci has a maximum of 600s after which it will end the building process)
 test_repetitions: 5                                                  # Number of repetitions per test
