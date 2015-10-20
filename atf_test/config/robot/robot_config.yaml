@@ -8,3 +8,5 @@ obstacle_distance:
 robot_bringup_launch: ""
 wait_for_topics: []
 wait_for_services: []
+additional_parameter: []
+additional_arguments: []

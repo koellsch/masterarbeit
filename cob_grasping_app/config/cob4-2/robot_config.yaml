@@ -10,3 +10,5 @@ wait_for_topics:
   - "/joint_states"
 wait_for_services:
   - "/get_planning_scene"
+additional_parameter: []
+additional_arguments: []
