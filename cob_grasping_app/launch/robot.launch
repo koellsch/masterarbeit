@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Robot bringup -->
+    <include file="/home/fmw-fk/catkin_ws/src/cob_simulation/cob_bringup_sim/launch/robot.launch">
+        <arg name="gui" value="false"/>
+    </include>
+
+</launch>
