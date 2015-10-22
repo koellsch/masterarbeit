@@ -11,8 +11,8 @@ test_1:
   test2:
     time:
     resources:
-      cpu: [rostest]
-      mem: [rostest]
+      cpu: [rostest, atf_status_server]
+      mem: [rostest, atf_status_server]
     path_length:
       - [world, reference1]
       - [world, reference2]
@@ -21,19 +21,10 @@ test_1:
   test3:
     time:
     resources:
-      cpu: [rostest]
-      mem: [rostest]
-      io: [rostest]
-      network: [rostest]
+      cpu: [rostest, atf_status_server]
+      mem: [rostest, atf_status_server]
+      io: [rostest, atf_status_server]
+      network: [rostest, atf_status_server]
     path_length:
       - [world, reference4]
       - [reference1, reference4]
-
-test_2:
-  test2:
-    time:
-    resources:
-      cpu: [rostest]
-      mem: [rostest]
-    path_length:
-      - [world, reference3]
