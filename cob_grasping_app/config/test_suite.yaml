@@ -16,8 +16,8 @@ testsuite_1:
 #    - "KPIECEkConfigDefault"
 #    - "RRTkConfigDefault"
 #    - "RRTConnectkConfigDefault"
-#    - "RRTstarkConfigDefault"
-#    - "TRRTkConfigDefault"
+    - "RRTstarkConfigDefault"
+    - "TRRTkConfigDefault"
 #    - "PRMkConfigDefault"
 #    - "PRMstarkConfigDefault"
   planning_method:
