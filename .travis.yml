@@ -9,8 +9,10 @@ env:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
     - CI_ROS_DISTRO="indigo"
-    - PACKAGE_NAME=cob_grasping_app
-    - FILE_OUTPUT=atf/atf_presenter/data
+    #- PACKAGE_NAME=cob_grasping_app
+    - PACKAGE_NAME=atf_test
+    #- FILE_OUTPUT=atf/atf_presenter/data
+    - FILE_OUTPUT=atf_test/data
     - REPO_NAME=masterarbeit
     - ROBOT=cob4-2
     - ROBOT_ENV=empty
@@ -32,7 +34,6 @@ install:
 
   - cd $CATKIN_WS_SRC
   - git clone https://github.com/koellsch/atf.git
-  - rm -rf masterarbeit/atf_test/
 
   # Use rosdep to install all dependencies (including ROS itself)
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
@@ -45,7 +46,8 @@ install:
   - source devel/setup.bash
 script:
   - sudo pip install psutil
-  - catkin_make test --force-cmake --pkg $PACKAGE_NAME
+  - catkin_make test --force-cmake --pkg $PACKAGE_NAME -DPKGNAME=atf_test
   #- catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
+  - echo -e "APPKEY=${APPKEY}\nAPPSECRET=${APPSECRET}\nACCESS_LEVEL=${ACCESS_LEVEL}\nOAUTH_ACCESS_TOKEN=${OAUTH_ACCESS_TOKEN}\nOAUTH_ACCESS_TOKEN_SECRET=${OAUTH_ACCESS_TOKEN_SECRET}" >> .dropbox_uploader
   - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .

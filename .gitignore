@@ -82,3 +82,4 @@ CATKIN_IGNORE
 *.idea/*
 *.json
 */data/*
+*.dropbox_uploader
