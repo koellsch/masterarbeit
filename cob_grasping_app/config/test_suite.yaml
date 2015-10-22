@@ -9,8 +9,8 @@ testsuite_1:
   robot:
     - "cob4-2"
   planer_id:
-    - "SBLkConfigDefault"
-    - "ESTkConfigDefault"
+#    - "SBLkConfigDefault"
+#    - "ESTkConfigDefault"
 #    - "LBKPIECEkConfigDefault"
 #    - "BKPIECEkConfigDefault"
 #    - "KPIECEkConfigDefault"
