@@ -12,7 +12,7 @@ env:
     #- PACKAGE_NAME=cob_grasping_app
     - PACKAGE_NAME=atf_test
     #- FILE_OUTPUT=atf/atf_presenter/data
-    - FILE_OUTPUT=atf_test/data
+    - FILE_OUTPUT=masterarbeit/atf_test/data
     - REPO_NAME=masterarbeit
     - ROBOT=cob4-2
     - ROBOT_ENV=empty
