@@ -24,7 +24,7 @@ install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-cob-* ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-ros-canopen ros-indigo-schunk-modular-robotics ros-indigo-universal-robot ros-indigo-cob-substitute ros-indigo-cob-simulation ros-indigo-cob-manipulation ros-indigo-cob-perception-common ros-indigo-cob-robots ros-indigo-cob-gazebo-plugins ros-indigo-cob-extern ros-indigo-cob-control ros-indigo-cob-driver ros-indigo-cob-environments ros-indigo-cob-calibration-data ros-indigo-cob-command-tools ros-indigo-cob-common ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
   - sudo rosdep init
   - rosdep update
   
