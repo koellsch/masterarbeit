@@ -17,10 +17,9 @@ env:
     - ROBOT=cob4-2
     - ROBOT_ENV=empty
 
-#branches:
-#  only:
-#    - master
-#    - stable
+branches:
+  only:
+    - indigo_dev
 install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
