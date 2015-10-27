@@ -15,7 +15,7 @@ testsuite_1:
 #    - "BKPIECEkConfigDefault"
 #    - "KPIECEkConfigDefault"
 #    - "RRTkConfigDefault"
-    - "RRTConnectkConfigDefault"
+#    - "RRTConnectkConfigDefault"
 #    - "RRTstarkConfigDefault"
 #    - "TRRTkConfigDefault"
 #    - "PRMkConfigDefault"
