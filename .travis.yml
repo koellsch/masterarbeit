@@ -46,11 +46,11 @@ install:
 
   - cd $CATKIN_WS_SRC
   - catkin_init_workspace
-  - cd $CATKIN_WS
-  - catkin_make --pkg atf_msgs
-  - catkin_make --force-cmake
-  - source devel/setup.bash
 script:
+  - cd $CATKIN_WS
+  - catkin_make
+  - source devel/setup.bash
+
   - sudo pip install psutil
   #- catkin_make test --force-cmake --pkg $PACKAGE_NAME -DPKGNAME=$PACKAGE_NAME
   - catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake -DPKGNAME=$PACKAGE_NAME
