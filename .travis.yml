@@ -11,9 +11,9 @@ env:
     - CI_ROS_DISTRO="indigo"
     - PACKAGE_NAME=cob_grasping_app
     #- PACKAGE_NAME=atf_test
-    - FILE_OUTPUT=atf/atf_presenter/data
-    - FILE_OUTPUT_BAG=atf/atf_recorder/data
-    #- FILE_OUTPUT=masterarbeit/atf_test/results
+    - FILE_OUTPUT=${CATKIN_WS_SRC}/atf/atf_presenter/data
+    - FILE_OUTPUT_BAG=${CATKIN_WS_SRC}/atf/atf_recorder/data
+    #- FILE_OUTPUT=${CATKIN_WS_SRC}/masterarbeit/atf_test/results
     - REPO_NAME=masterarbeit
     - ROBOT=cob4-2
     - ROBOT_ENV=empty
@@ -25,7 +25,7 @@ install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-ros-canopen ros-indigo-schunk-modular-robotics ros-indigo-universal-robot ros-indigo-cob-* ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools python-wstool python-ros* ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
   - sudo rosdep init
   - rosdep update
 
@@ -33,6 +33,10 @@ install:
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
 
   - cd $CATKIN_WS_SRC
+  - wstool init
+  - wstool merge -y https://raw.githubusercontent.com/ipa320/setup/master/repositories/cob_indigo_bringup.rosinstall
+  - wstool update
+  - git clone https://github.com/ipa320/cob_manipulation.git
   - git clone https://github.com/koellsch/atf.git
 
   # Use rosdep to install all dependencies (including ROS itself)
@@ -51,5 +55,5 @@ script:
 
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
   - echo -e "APPKEY=${APPKEY}\nAPPSECRET=${APPSECRET}\nACCESS_LEVEL=${ACCESS_LEVEL}\nOAUTH_ACCESS_TOKEN=${OAUTH_ACCESS_TOKEN}\nOAUTH_ACCESS_TOKEN_SECRET=${OAUTH_ACCESS_TOKEN_SECRET}" >> .dropbox_uploader
-  - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .
-  - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT_BAG/* .
+  - ./dropbox_uploader.sh upload $FILE_OUTPUT/* .
+  - ./dropbox_uploader.sh upload $FILE_OUTPUT_BAG/* .
