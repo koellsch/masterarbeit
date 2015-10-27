@@ -1793,12 +1793,15 @@ class TestRecording(unittest.TestCase):
 
     def test_Recording(self):
         # Wait for topics and services
+        rospy.loginfo("Waiting for topics...")
         for topic in self.topics:
             rospy.wait_for_message(topic, rostopic.get_topic_class(topic, blocking=True)[0], timeout=None)
 
+        rospy.loginfo("Waiting for services...")
         for service in self.services:
             rospy.wait_for_service(service, timeout=None)
 
+        rospy.loginfo("Test is ready!")
         self.sm.execute()
 
     @staticmethod
