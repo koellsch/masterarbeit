@@ -37,6 +37,7 @@ install:
   - wstool merge -y https://raw.githubusercontent.com/ipa320/setup/master/repositories/cob_indigo_bringup.rosinstall
   - wstool update
   - git clone https://github.com/ipa320/cob_manipulation.git
+  - rosdep update
   - git clone https://github.com/koellsch/atf.git
 
   # Use rosdep to install all dependencies (including ROS itself)
@@ -46,7 +47,8 @@ install:
   - cd $CATKIN_WS_SRC
   - catkin_init_workspace
   - cd $CATKIN_WS
-  - catkin_make
+  - catkin_make --pkg atf_msgs
+  - catkin_make --force-cmake
   - source devel/setup.bash
 script:
   - sudo pip install psutil
