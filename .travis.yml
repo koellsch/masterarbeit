@@ -12,6 +12,7 @@ env:
     - PACKAGE_NAME=cob_grasping_app
     #- PACKAGE_NAME=atf_test
     - FILE_OUTPUT=atf/atf_presenter/data
+    - FILE_OUTPUT_BAG=atf/atf_recorder/data
     #- FILE_OUTPUT=masterarbeit/atf_test/results
     - REPO_NAME=masterarbeit
     - ROBOT=cob4-2
@@ -51,3 +52,4 @@ script:
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
   - echo -e "APPKEY=${APPKEY}\nAPPSECRET=${APPSECRET}\nACCESS_LEVEL=${ACCESS_LEVEL}\nOAUTH_ACCESS_TOKEN=${OAUTH_ACCESS_TOKEN}\nOAUTH_ACCESS_TOKEN_SECRET=${OAUTH_ACCESS_TOKEN_SECRET}" >> .dropbox_uploader
   - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .
+  - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT_BAG/* .
