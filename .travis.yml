@@ -27,10 +27,10 @@ install:
   - sudo apt-get install -qq -y python-rosdep python-catkin-tools ros-indigo-ros-canopen ros-indigo-schunk-modular-robotics ros-indigo-universal-robot ros-indigo-cob-substitute ros-indigo-cob-simulation ros-indigo-cob-manipulation ros-indigo-cob-perception-common ros-indigo-cob-robots ros-indigo-cob-gazebo-plugins ros-indigo-cob-extern ros-indigo-cob-control ros-indigo-cob-driver ros-indigo-cob-environments ros-indigo-cob-calibration-data ros-indigo-cob-command-tools ros-indigo-cob-common ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
   - sudo rosdep init
   - rosdep update
-  
+
   - mkdir -p $CATKIN_WS_SRC
   - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
-  
+
   - cd $CATKIN_WS_SRC
   - git clone https://github.com/koellsch/atf.git
 
@@ -47,6 +47,7 @@ script:
   - sudo pip install psutil
   #- catkin_make test --force-cmake --pkg $PACKAGE_NAME -DPKGNAME=$PACKAGE_NAME
   - catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake -DPKGNAME=$PACKAGE_NAME
+
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
   - echo -e "APPKEY=${APPKEY}\nAPPSECRET=${APPSECRET}\nACCESS_LEVEL=${ACCESS_LEVEL}\nOAUTH_ACCESS_TOKEN=${OAUTH_ACCESS_TOKEN}\nOAUTH_ACCESS_TOKEN_SECRET=${OAUTH_ACCESS_TOKEN_SECRET}" >> .dropbox_uploader
   - ./dropbox_uploader.sh upload ../../../$FILE_OUTPUT/* .
