@@ -20,6 +20,7 @@ from visualization_msgs.msg import InteractiveMarkerControl, Marker
 
 from simple_script_server import *
 from atf_recorder import RecordingManager
+from subprocess import call
 
 
 def smooth_cartesian_path(traj):
@@ -1803,6 +1804,7 @@ class TestRecording(unittest.TestCase):
 
         rospy.loginfo("Test is ready!")
         self.sm.execute()
+        call(["killall gzclient", "killall gzserver"], shell=True)
 
     @staticmethod
     def load_data(filename):
