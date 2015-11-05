@@ -9,13 +9,13 @@ scene_1:
     dimension: [0.02, 0.02, 0.1]
     shape: 3
   poses:
-    approach: approach_1,
-    drop: drop_1,
-    end: end_1,
-    grasp: grasp_1,
-    lift: lift_1,
-    move: move_1,
-    retreat: retreat_1,
+    approach: approach_1
+    drop: drop_1
+    end: end_1
+    grasp: grasp_1
+    lift: lift_1
+    move: move_1
+    retreat: retreat_1
     start: start_1
   positions:
     arm: right
@@ -37,13 +37,13 @@ scene_2:
     dimension: [0.02, 0.02, 0.1]
     shape: 3
   poses:
-    approach: approach_2,
-    drop: drop_2,
-    end: end_2,
-    grasp: grasp_2,
-    lift: lift_2,
-    move: move_2,
-    retreat: retreat_2,
+    approach: approach_2
+    drop: drop_2
+    end: end_2
+    grasp: grasp_2
+    lift: lift_2
+    move: move_2
+    retreat: retreat_2
     start: start_2
   positions:
     arm: right
@@ -75,13 +75,13 @@ scene_3:
     dimension: [0.02, 0.02, 0.1]
     shape: 3
   poses:
-    approach: approach_3,
-    drop: drop_3,
-    end: end_3,
-    grasp: grasp_3,
-    lift: lift_3,
-    move: move_3,
-    retreat: retreat_3,
+    approach: approach_3
+    drop: drop_3
+    end: end_3
+    grasp: grasp_3
+    lift: lift_3
+    move: move_3
+    retreat: retreat_3
     start: start_3
   positions:
     arm: right
