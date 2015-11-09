@@ -9,6 +9,6 @@ result_yaml_output: ""
 test_application_path: "cob_grasping_app/test/grasping_app.test"
 additional_launch_file: "cob_grasping_app/launch/move_group.launch"
 
-time_limit_recording: 390.0
-time_limit_analysing: 390.0
+time_limit_recording: 450.0
+time_limit_analysing: 450.0
 test_repetitions: 2

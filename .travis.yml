@@ -48,14 +48,14 @@ install:
 
   - cd $CATKIN_WS_SRC
   - catkin_init_workspace
-script:
   - cd $CATKIN_WS
   - catkin_make --pkg cob_light
   - source devel/setup.bash
   - catkin_make
   - sudo pip install psutil
-  #- catkin_make test --force-cmake --pkg $PACKAGE_NAME -DPKGNAME=$PACKAGE_NAME
-  - catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake -DPKGNAME=$PACKAGE_NAME
+script:
+  - catkin_make test --force-cmake --pkg $PACKAGE_NAME -DPKGNAME=$PACKAGE_NAME
+  #- catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake -DPKGNAME=$PACKAGE_NAME
 
   - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
   - echo -e "APPKEY=${APPKEY}\nAPPSECRET=${APPSECRET}\nACCESS_LEVEL=${ACCESS_LEVEL}\nOAUTH_ACCESS_TOKEN=${OAUTH_ACCESS_TOKEN}\nOAUTH_ACCESS_TOKEN_SECRET=${OAUTH_ACCESS_TOKEN_SECRET}" >> .dropbox_uploader

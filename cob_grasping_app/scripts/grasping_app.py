@@ -1804,7 +1804,8 @@ class TestRecording(unittest.TestCase):
 
         rospy.loginfo("Test is ready!")
         self.sm.execute()
-        call(["killall gzclient", "killall gzserver"], shell=True)
+        call("killall gzclient", shell=True)
+        call("killall gzserver", shell=True)
 
     @staticmethod
     def load_data(filename):
