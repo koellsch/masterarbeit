@@ -9,6 +9,7 @@ import yaml
 from tf import transformations, TransformListener, TransformBroadcaster
 from atf_recorder import RecordingManager
 from atf_msgs.msg import *
+from subprocess import call
 
 
 class PublishTf:
@@ -117,6 +118,10 @@ class TestRecording(unittest.TestCase):
         robot_config = self.load_data(rospy.get_param('/robot_config'))
         self.topics = robot_config['wait_for_topics']
         self.services = robot_config['wait_for_services']
+
+    def tearDown(self):
+        call("killall gzclient", shell=True)
+        call("killall gzserver", shell=True)
 
     def test_Recording(self):
         # Wait for topics and services

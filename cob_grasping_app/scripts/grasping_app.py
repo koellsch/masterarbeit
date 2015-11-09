@@ -1792,6 +1792,10 @@ class TestRecording(unittest.TestCase):
         self.topics = robot_config['wait_for_topics']
         self.services = robot_config['wait_for_services']
 
+    def tearDown(self):
+        call("killall gzclient", shell=True)
+        call("killall gzserver", shell=True)
+
     def test_Recording(self):
         # Wait for topics and services
         rospy.loginfo("Waiting for topics...")
@@ -1804,8 +1808,6 @@ class TestRecording(unittest.TestCase):
 
         rospy.loginfo("Test is ready!")
         self.sm.execute()
-        call("killall gzclient", shell=True)
-        call("killall gzserver", shell=True)
 
     @staticmethod
     def load_data(filename):

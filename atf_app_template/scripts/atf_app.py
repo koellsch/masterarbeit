@@ -6,6 +6,7 @@ import rostopic
 import yaml
 
 from atf_recorder import RecordingManager
+from subprocess import call
 
 
 class AtfApp:
@@ -28,6 +29,10 @@ class Test(unittest.TestCase):
         robot_config = self.load_data(rospy.get_param('/robot_config'))
         self.topics = robot_config['wait_for_topics']
         self.services = robot_config['wait_for_services']
+
+    def tearDown(self):
+        call("killall gzclient", shell=True)
+        call("killall gzserver", shell=True)
 
     def test_Recording(self):
         # Wait for topics and services
