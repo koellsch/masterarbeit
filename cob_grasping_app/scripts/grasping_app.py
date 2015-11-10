@@ -210,8 +210,8 @@ class SceneManager(smach.State):
 
             # ---- POSITIONS FOR RIGHT ARM ----
             waypoints_r = []
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) != 0:
-                for item in self.scene_data[self.scenario]["positions"]["waypoints_r"]:
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_r"]) != 0:
+                for item in self.scene_data[self.scenario]["positions"]["waypoint_r"]:
                     waypoints_r.append(Point(item[0], item[1], item[2]))
 
             userdata.arm_positions["right"] = {"start": Point(self.scene_data[self.scenario]["positions"]["start_r"][0],
@@ -227,8 +227,8 @@ class SceneManager(smach.State):
 
             # ---- POSITIONS FOR LEFT ARM ----
             waypoints_l = []
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) != 0:
-                for item in self.scene_data[self.scenario]["positions"]["waypoints_l"]:
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_l"]) != 0:
+                for item in self.scene_data[self.scenario]["positions"]["waypoint_l"]:
                     waypoints_l.append(Point(item[0], item[1], item[2]))
 
             userdata.arm_positions["left"] = {"start": Point(self.scene_data[self.scenario]["positions"]["goal_r"][0],
@@ -340,6 +340,7 @@ class SceneManager(smach.State):
 
     def process_feedback(self, feedback):
         if feedback.event_type == InteractiveMarkerFeedback.MOUSE_UP:
+            name = ''.join(i for i in feedback.marker_name if not i.isdigit())
             if feedback.marker_name == "right_arm_start":
                 self.scene_data[self.scenario]["positions"]["start_r"] = [feedback.pose.position.x,
                                                                           feedback.pose.position.y,
@@ -352,24 +353,15 @@ class SceneManager(smach.State):
                 self.scene_data[self.scenario]["positions"]["goal_l"] = [feedback.pose.position.x,
                                                                          feedback.pose.position.y,
                                                                          feedback.pose.position.z]
-            elif "waypoint_r" in feedback.marker_name:
+            elif "waypoint_" in name:
                 numbers = []
                 for s in feedback.marker_name:
                     numbers = findall("[-+]?\d+[\.]?\d*", s)
 
                 number = int(numbers[0]) - 1
-                self.scene_data[self.scenario]["positions"]["waypoints_r"][number] = [feedback.pose.position.x,
-                                                                                      feedback.pose.position.y,
-                                                                                      feedback.pose.position.z]
-            elif "waypoint_l" in feedback.marker_name:
-                numbers = []
-                for s in feedback.marker_name:
-                    numbers = findall("[-+]?\d+[\.]?\d*", s)
-
-                number = int(numbers[0]) - 1
-                self.scene_data[self.scenario]["positions"]["waypoints_l"][number] = [feedback.pose.position.x,
-                                                                                      feedback.pose.position.y,
-                                                                                      feedback.pose.position.z]
+                self.scene_data[self.scenario]["positions"][name][number] = [feedback.pose.position.x,
+                                                                             feedback.pose.position.y,
+                                                                             feedback.pose.position.z]
 
             rospy.loginfo("Position " + feedback.marker_name + ": x = " + str(feedback.pose.position.x) +
                           " | y = " + str(feedback.pose.position.y) + " | z = " + str(feedback.pose.position.z))
@@ -383,12 +375,12 @@ class SceneManager(smach.State):
         name = ""
 
         if "right" in self.menu_handler.getTitle(feedback.menu_entry_id):
-            name = "waypoint_r" + str(len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) + 1)
-            self.scene_data[self.scenario]["positions"]["waypoints_r"].append(position)
+            name = "waypoint_r" + str(len(self.scene_data[self.scenario]["positions"]["waypoint_r"]) + 1)
+            self.scene_data[self.scenario]["positions"]["waypoint_r"].append(position)
 
         elif "left" in self.menu_handler.getTitle(feedback.menu_entry_id):
-            name = "waypoint_l" + str(len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) + 1)
-            self.scene_data[self.scenario]["positions"]["waypoints_l"].append(position)
+            name = "waypoint_l" + str(len(self.scene_data[self.scenario]["positions"]["waypoint_l"]) + 1)
+            self.scene_data[self.scenario]["positions"]["waypoint_l"].append(position)
 
         # Add marker to scene
         self.make_marker(name, color, InteractiveMarkerControl.MOVE_3D, position)
@@ -402,66 +394,38 @@ class SceneManager(smach.State):
                       str(position.y) + " | z: " + str(position.z))
 
     def delete_waypoint(self, feedback):
-        name = feedback.marker_name
+        wp_name = feedback.marker_name
+        name = ''.join(i for i in wp_name if not i.isdigit())
         numbers = []
 
-        if "waypoint_r" in name:
+        if "waypoint_" in wp_name:
 
             # Delete all waypoints
-            for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_r"])):
-                self.server.erase("waypoint_r" + str(i + 1))
+            for i in xrange(0, len(self.scene_data[self.scenario]["positions"][name])):
+                self.server.erase(name + str(i + 1))
             self.server.applyChanges()
 
             # Delete selected waypoint from list
-            for s in name:
+            for s in wp_name:
                 numbers = findall("[-+]?\d+[\.]?\d*", s)
             number = int(numbers[0]) - 1
-            del self.scene_data[self.scenario]["positions"]["waypoints_r"][number]
+            del self.scene_data[self.scenario]["positions"][name][number]
 
             # Build remaining waypoints
             color = ColorRGBA(0.0, 0.0, 1.0, 1.0)
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_r"])):
-                    self.make_marker("waypoint_r" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_r"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][2]))
+            if len(self.scene_data[self.scenario]["positions"][name]) != 0:
+                for i in xrange(0, len(self.scene_data[self.scenario]["positions"][name])):
+                    self.make_marker(name + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
+                                     Point(self.scene_data[self.scenario]["positions"][name][i][0],
+                                           self.scene_data[self.scenario]["positions"][name][i][1],
+                                           self.scene_data[self.scenario]["positions"][name][i][2]))
 
             self.menu_handler.reApply(self.server)
             self.server.applyChanges()
 
             self.positions_changed = True
 
-            rospy.loginfo("Deleted waypoint '" + str(name) + "'")
-
-        elif "waypoint_l" in name:
-
-            # Delete all waypoints
-            for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_l"])):
-                self.server.erase("waypoint_l" + str(i + 1))
-            self.server.applyChanges()
-
-            # Delete selected waypoint from list
-            for s in name:
-                numbers = findall("[-+]?\d+[\.]?\d*", s)
-            number = int(numbers[0]) - 1
-            del self.scene_data[self.scenario]["positions"]["waypoints_l"][number]
-
-            # Build remaining waypoints
-            color = ColorRGBA(0.0, 0.0, 1.0, 1.0)
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_l"])):
-                    self.make_marker("waypoint_l" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_l"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][2]))
-
-            self.menu_handler.reApply(self.server)
-            self.server.applyChanges()
-
-            self.positions_changed = True
-
-            rospy.loginfo("Deleted waypoint '" + str(name) + "'")
+            rospy.loginfo("Deleted waypoint '" + str(wp_name) + "'")
         else:
             rospy.logerr("Only waypoints can be deleted!")
 
@@ -612,19 +576,19 @@ class SceneManager(smach.State):
             color.r = 0.0
             color.b = 1.0
 
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_r"])):
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_r"]) != 0:
+                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoint_r"])):
                     self.make_marker("waypoint_r" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_r"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][2]))
+                                     Point(self.scene_data[self.scenario]["positions"]["waypoint_r"][i][0],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_r"][i][1],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_r"][i][2]))
 
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_l"])):
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_l"]) != 0:
+                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoint_l"])):
                     self.make_marker("waypoint_l" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_l"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][2]))
+                                     Point(self.scene_data[self.scenario]["positions"]["waypoint_l"][i][0],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_l"][i][1],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_l"][i][2]))
 
             self.server.applyChanges()
 
