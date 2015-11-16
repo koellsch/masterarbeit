@@ -12,15 +12,12 @@ from subprocess import call
 class AtfApp:
     def __init__(self):
         self.recorder = RecordingManager('testblock_name')
-        pass
 
     def execute(self):
         # Example for recorder usage
         self.recorder.start()
         self.recorder.error()
         self.recorder.stop()
-        pass
-
 
 class Test(unittest.TestCase):
     def setUp(self):
