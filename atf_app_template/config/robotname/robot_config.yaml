@@ -15,6 +15,6 @@ wait_for_services:                                    # Names of the services to
 additional_parameter:                                 # Name and value of additional parameter which will be included in every recording test file
   - name: "param"
     value: 1
-additional_arguments:                                 # Name and value of additional argument which will be included in every recording test file
+additional_arguments:                                 # Name and value of additional arguments which will be included in every recording test file
   - name: "argu"
     value: 1
