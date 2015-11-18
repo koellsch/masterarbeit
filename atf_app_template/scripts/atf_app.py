@@ -19,6 +19,7 @@ class AtfApp:
         self.recorder.error()
         self.recorder.stop()
 
+
 class Test(unittest.TestCase):
     def setUp(self):
         self.app = AtfApp()
