@@ -34,7 +34,7 @@ class PublishTf:
 
         recorder_0.start()
         recorder_1.start()
-        self.pub_line(length=-1, time=5)
+        self.pub_line(length=1, time=5)
         recorder_1.stop()
         recorder_2.start()
         self.pub_quadrat(length=2, time=10)

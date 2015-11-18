@@ -11,4 +11,4 @@ additional_launch_file: ""
 
 time_limit_recording: 100.0
 time_limit_analysing: 100.0
-test_repetitions: 5
+test_repetitions: 10
