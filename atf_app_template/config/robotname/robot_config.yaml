@@ -1,0 +1,20 @@
+path_length:                                          # Topics for the metric 'path_length'
+  topics:
+    - "tf topic name"
+obstacle_distance:                                    # Topics for the metric 'obstacle_distance'. Do not alter!!!
+  topics:
+    - "/atf/obstacle_distance"
+  robot_description: "name of robot description"      # Name of the robot description
+robot_bringup_launch: "robot bringup launch"          # Path to the robot bringup launch file
+wait_for_topics:                                      # Names of the topics to wait for before beginning the test
+  - "topic1 name"
+  - "topic2 name"
+wait_for_services:                                    # Names of the services to wait for before beginning the test
+  - "service1 name"
+  - "service2 name"
+additional_parameter:                                 # Name and value of additional parameter which will be included in every recording test file
+  - name: "param"
+    value: 1
+additional_arguments:                                 # Name and value of additional arguments which will be included in every recording test file
+  - name: "argu"
+    value: 1

@@ -1,0 +1,63 @@
+sudo: required
+dist: trusty
+# Force travis to use its minimal image with default Python settings
+language: generic
+compiler:
+  - gcc
+env:
+  global:
+    - CATKIN_WS=~/catkin_ws
+    - CATKIN_WS_SRC=${CATKIN_WS}/src
+    - CI_ROS_DISTRO="indigo"
+    - PACKAGE_NAME=cob_grasping_app
+    #- PACKAGE_NAME=atf_test
+    - FILE_OUTPUT=${CATKIN_WS_SRC}/atf/atf_presenter/data
+    - FILE_OUTPUT_BAG=${CATKIN_WS_SRC}/atf/atf_recorder/data
+    #- FILE_OUTPUT=${CATKIN_WS_SRC}/masterarbeit/atf_test/results
+    - REPO_NAME=masterarbeit
+    - ROBOT=cob4-2
+    - ROBOT_ENV=empty
+
+branches:
+  only:
+    - indigo_dev
+notifications:
+  email: false
+install:
+  - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y python-rosdep python-catkin-tools python-wstool python-ros* ros-indigo-rosbridge-suite python-dev gcc python-pip curl ros-indigo-smach
+  - sudo rosdep init
+  - rosdep update
+
+  - mkdir -p $CATKIN_WS_SRC
+  - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
+
+  - cd $CATKIN_WS_SRC
+  - wstool init
+  - wstool merge -y https://raw.githubusercontent.com/ipa320/setup/master/repositories/cob_indigo_bringup.rosinstall
+  - wstool update
+  - git clone https://github.com/ipa320/cob_manipulation.git
+  - rosdep update
+  - git clone https://github.com/koellsch/atf.git
+
+  # Use rosdep to install all dependencies (including ROS itself)
+  - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
+  - source /opt/ros/$CI_ROS_DISTRO/setup.bash
+
+  - cd $CATKIN_WS_SRC
+  - catkin_init_workspace
+  - cd $CATKIN_WS
+  - catkin_make --pkg cob_light
+  - source devel/setup.bash
+  - catkin_make
+  - sudo pip install psutil
+script:
+  - catkin_make test --force-cmake --pkg $PACKAGE_NAME -DPKGNAME=$PACKAGE_NAME
+  #- catkin_make -j 1 run_tests_$PACKAGE_NAME --force-cmake -DPKGNAME=$PACKAGE_NAME
+
+  - cd $CATKIN_WS_SRC/$REPO_NAME/$PACKAGE_NAME/scripts
+  - echo -e "APPKEY=${APPKEY}\nAPPSECRET=${APPSECRET}\nACCESS_LEVEL=${ACCESS_LEVEL}\nOAUTH_ACCESS_TOKEN=${OAUTH_ACCESS_TOKEN}\nOAUTH_ACCESS_TOKEN_SECRET=${OAUTH_ACCESS_TOKEN_SECRET}" >> .dropbox_uploader
+  - ./dropbox_uploader.sh upload $FILE_OUTPUT/* .
+  - ./dropbox_uploader.sh upload $FILE_OUTPUT_BAG/* .

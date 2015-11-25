@@ -1,0 +1,12 @@
+path_length:
+  topics:
+    - "/tf"
+obstacle_distance:
+  topics:
+    - "/atf/obstacle_distance"
+  robot_description: ""
+robot_bringup_launch: ""
+wait_for_topics: []
+wait_for_services: []
+additional_parameter: []
+additional_arguments: []

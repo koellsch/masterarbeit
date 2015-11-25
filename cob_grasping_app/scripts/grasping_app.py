@@ -5,6 +5,7 @@ import tf
 import yaml
 import unittest
 import rostest
+import rostopic
 
 from pyassimp import pyassimp
 from copy import copy
@@ -19,10 +20,10 @@ from visualization_msgs.msg import InteractiveMarkerControl, Marker
 
 from simple_script_server import *
 from atf_recorder import RecordingManager
+from subprocess import call
 
 
 def smooth_cartesian_path(traj):
-
     time_offset = 200000000  # 0.2s
 
     for i in xrange(len(traj.joint_trajectory.points)):
@@ -35,7 +36,7 @@ def smooth_cartesian_path(traj):
 
 def fix_velocities(traj):
     # fix trajectories to stop at the end
-    traj.joint_trajectory.points[-1].velocities = [0]*7
+    traj.joint_trajectory.points[-1].velocities = [0] * 7
 
     # fix trajectories to be slower
     speed_factor = 1.0
@@ -83,47 +84,46 @@ def scale_joint_trajectory_speed(traj, scale):
 
 
 def plan_movement(planer, start_pose, goal_pose, speed):
+    planer.set_start_state(start_pose)
 
-        planer.set_start_state(start_pose)
+    planer.clear_pose_targets()
+    planer.set_joint_value_target(goal_pose)
 
-        planer.clear_pose_targets()
-        planer.set_joint_value_target(goal_pose)
+    plan = planer.plan()
 
-        plan = planer.plan()
-
-        plan = smooth_cartesian_path(plan)
-        plan = scale_joint_trajectory_speed(plan, speed)
-        return plan
+    plan = smooth_cartesian_path(plan)
+    plan = scale_joint_trajectory_speed(plan, speed)
+    return plan
 
 
 def add_remove_object(co_operation, co_object, co_position, co_type):
-        if co_operation == "add":
-            co_object.operation = CollisionObject.ADD
-            pose = Pose()
-            pose.position.x = co_position[0]
-            pose.position.y = co_position[1]
-            pose.position.z = co_position[2]
-            pose.orientation.x = co_position[3]
-            pose.orientation.y = co_position[4]
-            pose.orientation.z = co_position[5]
-            pose.orientation.w = co_position[6]
+    if co_operation == "add":
+        co_object.operation = CollisionObject.ADD
+        pose = Pose()
+        pose.position.x = co_position[0]
+        pose.position.y = co_position[1]
+        pose.position.z = co_position[2]
+        pose.orientation.x = co_position[3]
+        pose.orientation.y = co_position[4]
+        pose.orientation.z = co_position[5]
+        pose.orientation.w = co_position[6]
 
-            if co_type == "mesh":
-                co_object.mesh_poses.append(pose)
-            elif co_type == "primitive":
-                co_object.primitive_poses.append(pose)
-            else:
-                rospy.logerr("Invalid type")
-        elif co_operation == "remove":
-            co_object.operation = CollisionObject.REMOVE
-            planning_scene.world.collision_objects[:] = []
+        if co_type == "mesh":
+            co_object.mesh_poses.append(pose)
+        elif co_type == "primitive":
+            co_object.primitive_poses.append(pose)
         else:
-            rospy.logerr("Invalid command")
-            return
+            rospy.logerr("Invalid type")
+    elif co_operation == "remove":
+        co_object.operation = CollisionObject.REMOVE
+        planning_scene.world.collision_objects[:] = []
+    else:
+        rospy.logerr("Invalid command")
+        return
 
-        planning_scene.world.collision_objects.append(co_object)
-        pub_planning_scene.publish(planning_scene)
-        rospy.sleep(0.1)
+    planning_scene.world.collision_objects.append(co_object)
+    pub_planning_scene.publish(planning_scene)
+    rospy.sleep(0.1)
 
 
 class SceneManager(smach.State):
@@ -210,8 +210,8 @@ class SceneManager(smach.State):
 
             # ---- POSITIONS FOR RIGHT ARM ----
             waypoints_r = []
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) != 0:
-                for item in self.scene_data[self.scenario]["positions"]["waypoints_r"]:
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_r"]) != 0:
+                for item in self.scene_data[self.scenario]["positions"]["waypoint_r"]:
                     waypoints_r.append(Point(item[0], item[1], item[2]))
 
             userdata.arm_positions["right"] = {"start": Point(self.scene_data[self.scenario]["positions"]["start_r"][0],
@@ -227,8 +227,8 @@ class SceneManager(smach.State):
 
             # ---- POSITIONS FOR LEFT ARM ----
             waypoints_l = []
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) != 0:
-                for item in self.scene_data[self.scenario]["positions"]["waypoints_l"]:
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_l"]) != 0:
+                for item in self.scene_data[self.scenario]["positions"]["waypoint_l"]:
                     waypoints_l.append(Point(item[0], item[1], item[2]))
 
             userdata.arm_positions["left"] = {"start": Point(self.scene_data[self.scenario]["positions"]["goal_r"][0],
@@ -340,6 +340,7 @@ class SceneManager(smach.State):
 
     def process_feedback(self, feedback):
         if feedback.event_type == InteractiveMarkerFeedback.MOUSE_UP:
+            name = ''.join(i for i in feedback.marker_name if not i.isdigit())
             if feedback.marker_name == "right_arm_start":
                 self.scene_data[self.scenario]["positions"]["start_r"] = [feedback.pose.position.x,
                                                                           feedback.pose.position.y,
@@ -352,27 +353,18 @@ class SceneManager(smach.State):
                 self.scene_data[self.scenario]["positions"]["goal_l"] = [feedback.pose.position.x,
                                                                          feedback.pose.position.y,
                                                                          feedback.pose.position.z]
-            elif "waypoint_r" in feedback.marker_name:
+            elif "waypoint_" in name:
                 numbers = []
                 for s in feedback.marker_name:
                     numbers = findall("[-+]?\d+[\.]?\d*", s)
 
                 number = int(numbers[0]) - 1
-                self.scene_data[self.scenario]["positions"]["waypoints_r"][number] = [feedback.pose.position.x,
-                                                                                      feedback.pose.position.y,
-                                                                                      feedback.pose.position.z]
-            elif "waypoint_l" in feedback.marker_name:
-                numbers = []
-                for s in feedback.marker_name:
-                    numbers = findall("[-+]?\d+[\.]?\d*", s)
+                self.scene_data[self.scenario]["positions"][name][number] = [feedback.pose.position.x,
+                                                                             feedback.pose.position.y,
+                                                                             feedback.pose.position.z]
 
-                number = int(numbers[0]) - 1
-                self.scene_data[self.scenario]["positions"]["waypoints_l"][number] = [feedback.pose.position.x,
-                                                                                      feedback.pose.position.y,
-                                                                                      feedback.pose.position.z]
-
-            rospy.loginfo("Position " + feedback.marker_name + ": x = " + str(feedback.pose.position.x)
-                          + " | y = " + str(feedback.pose.position.y) + " | z = " + str(feedback.pose.position.z))
+            rospy.loginfo("Position " + feedback.marker_name + ": x = " + str(feedback.pose.position.x) +
+                          " | y = " + str(feedback.pose.position.y) + " | z = " + str(feedback.pose.position.z))
             self.server.applyChanges()
 
             self.positions_changed = True
@@ -383,12 +375,12 @@ class SceneManager(smach.State):
         name = ""
 
         if "right" in self.menu_handler.getTitle(feedback.menu_entry_id):
-            name = "waypoint_r" + str(len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) + 1)
-            self.scene_data[self.scenario]["positions"]["waypoints_r"].append(position)
+            name = "waypoint_r" + str(len(self.scene_data[self.scenario]["positions"]["waypoint_r"]) + 1)
+            self.scene_data[self.scenario]["positions"]["waypoint_r"].append(position)
 
         elif "left" in self.menu_handler.getTitle(feedback.menu_entry_id):
-            name = "waypoint_l" + str(len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) + 1)
-            self.scene_data[self.scenario]["positions"]["waypoints_l"].append(position)
+            name = "waypoint_l" + str(len(self.scene_data[self.scenario]["positions"]["waypoint_l"]) + 1)
+            self.scene_data[self.scenario]["positions"]["waypoint_l"].append(position)
 
         # Add marker to scene
         self.make_marker(name, color, InteractiveMarkerControl.MOVE_3D, position)
@@ -398,70 +390,42 @@ class SceneManager(smach.State):
 
         self.positions_changed = True
 
-        rospy.loginfo("Added waypoint '" + str(name) + "' at position: x: " + str(position.x) + " | y: "
-                      + str(position.y) + " | z: " + str(position.z))
+        rospy.loginfo("Added waypoint '" + str(name) + "' at position: x: " + str(position.x) + " | y: " +
+                      str(position.y) + " | z: " + str(position.z))
 
     def delete_waypoint(self, feedback):
-        name = feedback.marker_name
+        wp_name = feedback.marker_name
+        name = ''.join(i for i in wp_name if not i.isdigit())
         numbers = []
 
-        if "waypoint_r" in name:
+        if "waypoint_" in wp_name:
 
             # Delete all waypoints
-            for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_r"])):
-                self.server.erase("waypoint_r" + str(i + 1))
+            for i in xrange(0, len(self.scene_data[self.scenario]["positions"][name])):
+                self.server.erase(name + str(i + 1))
             self.server.applyChanges()
 
             # Delete selected waypoint from list
-            for s in name:
+            for s in wp_name:
                 numbers = findall("[-+]?\d+[\.]?\d*", s)
             number = int(numbers[0]) - 1
-            del self.scene_data[self.scenario]["positions"]["waypoints_r"][number]
+            del self.scene_data[self.scenario]["positions"][name][number]
 
             # Build remaining waypoints
             color = ColorRGBA(0.0, 0.0, 1.0, 1.0)
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_r"])):
-                    self.make_marker("waypoint_r" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_r"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][2]))
+            if len(self.scene_data[self.scenario]["positions"][name]) != 0:
+                for i in xrange(0, len(self.scene_data[self.scenario]["positions"][name])):
+                    self.make_marker(name + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
+                                     Point(self.scene_data[self.scenario]["positions"][name][i][0],
+                                           self.scene_data[self.scenario]["positions"][name][i][1],
+                                           self.scene_data[self.scenario]["positions"][name][i][2]))
 
             self.menu_handler.reApply(self.server)
             self.server.applyChanges()
 
             self.positions_changed = True
 
-            rospy.loginfo("Deleted waypoint '" + str(name) + "'")
-
-        elif "waypoint_l" in name:
-
-            # Delete all waypoints
-            for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_l"])):
-                self.server.erase("waypoint_l" + str(i + 1))
-            self.server.applyChanges()
-
-            # Delete selected waypoint from list
-            for s in name:
-                numbers = findall("[-+]?\d+[\.]?\d*", s)
-            number = int(numbers[0]) - 1
-            del self.scene_data[self.scenario]["positions"]["waypoints_l"][number]
-
-            # Build remaining waypoints
-            color = ColorRGBA(0.0, 0.0, 1.0, 1.0)
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_l"])):
-                    self.make_marker("waypoint_l" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_l"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][2]))
-
-            self.menu_handler.reApply(self.server)
-            self.server.applyChanges()
-
-            self.positions_changed = True
-
-            rospy.loginfo("Deleted waypoint '" + str(name) + "'")
+            rospy.loginfo("Deleted waypoint '" + str(wp_name) + "'")
         else:
             rospy.logerr("Only waypoints can be deleted!")
 
@@ -519,9 +483,9 @@ class SceneManager(smach.State):
         scale = self.scene_data[self.scenario]["environment"]["scaling"]
         environment.meshes.append(self.load_mesh(filename, scale))
 
-        q = quaternion_from_euler(self.scene_data[self.scenario]["environment"]["orientation"][0]/180.0 * math.pi,
-                                  self.scene_data[self.scenario]["environment"]["orientation"][1]/180.0 * math.pi,
-                                  self.scene_data[self.scenario]["environment"]["orientation"][2]/180.0 * math.pi)
+        q = quaternion_from_euler((self.scene_data[self.scenario]["environment"]["orientation"][0] / 180.0) * math.pi,
+                                  (self.scene_data[self.scenario]["environment"]["orientation"][1] / 180.0) * math.pi,
+                                  (self.scene_data[self.scenario]["environment"]["orientation"][2] / 180.0) * math.pi)
 
         position = [self.scene_data[self.scenario]["environment"]["position"][0],
                     self.scene_data[self.scenario]["environment"]["position"][1],
@@ -530,7 +494,7 @@ class SceneManager(smach.State):
 
         add_remove_object("add", copy(environment), position, "mesh")
 
-        if len(self.scene_data[self.scenario]["environment"]["additional_obstacles"]) != 0\
+        if len(self.scene_data[self.scenario]["environment"]["additional_obstacles"]) != 0 \
                 and self.spawn_obstacles != "none":
             for item in self.scene_data[self.scenario]["environment"]["additional_obstacles"]:
                 if self.spawn_obstacles == "all":
@@ -545,9 +509,9 @@ class SceneManager(smach.State):
                     object_shape.dimensions.append(item["size"][2])  # Z
                     collision_object.primitives.append(object_shape)
 
-                    q = quaternion_from_euler(item["orientation"][0]/180.0 * math.pi,
-                                              item["orientation"][1]/180.0 * math.pi,
-                                              item["orientation"][2]/180.0 * math.pi)
+                    q = quaternion_from_euler((item["orientation"][0] / 180.0) * math.pi,
+                                              (item["orientation"][1] / 180.0) * math.pi,
+                                              (item["orientation"][2] / 180.0) * math.pi)
 
                     position = [item["position"][0], item["position"][1], item["position"][2], q[0], q[1], q[2], q[3]]
                     add_remove_object("add", collision_object, position, "primitive")
@@ -564,9 +528,9 @@ class SceneManager(smach.State):
                     object_shape.dimensions.append(item["size"][2])  # Z
                     collision_object.primitives.append(object_shape)
 
-                    q = quaternion_from_euler(item["orientation"][0]/180.0 * math.pi,
-                                              item["orientation"][1]/180.0 * math.pi,
-                                              item["orientation"][2]/180.0 * math.pi)
+                    q = quaternion_from_euler((item["orientation"][0] / 180.0) * math.pi,
+                                              (item["orientation"][1] / 180.0) * math.pi,
+                                              (item["orientation"][2] / 180.0) * math.pi)
 
                     position = [item["position"][0], item["position"][1], item["position"][2], q[0], q[1], q[2], q[3]]
                     add_remove_object("add", collision_object, position, "primitive")
@@ -612,19 +576,19 @@ class SceneManager(smach.State):
             color.r = 0.0
             color.b = 1.0
 
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_r"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_r"])):
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_r"]) != 0:
+                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoint_r"])):
                     self.make_marker("waypoint_r" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_r"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_r"][i][2]))
+                                     Point(self.scene_data[self.scenario]["positions"]["waypoint_r"][i][0],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_r"][i][1],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_r"][i][2]))
 
-            if len(self.scene_data[self.scenario]["positions"]["waypoints_l"]) != 0:
-                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoints_l"])):
+            if len(self.scene_data[self.scenario]["positions"]["waypoint_l"]) != 0:
+                for i in xrange(0, len(self.scene_data[self.scenario]["positions"]["waypoint_l"])):
                     self.make_marker("waypoint_l" + str(i + 1), color, InteractiveMarkerControl.MOVE_3D,
-                                     Point(self.scene_data[self.scenario]["positions"]["waypoints_l"][i][0],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][1],
-                                           self.scene_data[self.scenario]["positions"]["waypoints_l"][i][2]))
+                                     Point(self.scene_data[self.scenario]["positions"]["waypoint_l"][i][0],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_l"][i][1],
+                                           self.scene_data[self.scenario]["positions"]["waypoint_l"][i][2]))
 
             self.server.applyChanges()
 
@@ -717,7 +681,7 @@ class EndPosition(smach.State):
         object_shape = SolidPrimitive()
         object_shape.type = userdata.object["shape"]
         object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-        object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+        object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
         collision_object.primitives.append(object_shape)
         add_remove_object("remove", copy(collision_object), "", "")
 
@@ -824,9 +788,9 @@ class Planning(smach.State):
             userdata.cs_orientation[3] = 1.0
 
         if userdata.cs_orientation[3] == 1.0:
-            userdata.cs_orientation[2] += 5.0 / 180.0 * math.pi
+            userdata.cs_orientation[2] += (5.0 / 180.0) * math.pi
         elif userdata.cs_orientation[3] == -1.0:
-            userdata.cs_orientation[2] -= 5.0 / 180.0 * math.pi
+            userdata.cs_orientation[2] -= (5.0 / 180.0) * math.pi
 
         if userdata.active_arm == "left":
             userdata.cs_orientation[0] = math.pi
@@ -1021,7 +985,7 @@ class Planning(smach.State):
             object_shape = SolidPrimitive()
             object_shape.type = userdata.object["shape"]
             object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-            object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+            object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
             object_pose = Pose()
             object_pose.orientation.w = 1.0
@@ -1141,7 +1105,7 @@ class Planning(smach.State):
             object_shape = SolidPrimitive()
             object_shape.type = userdata.object["shape"]
             object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-            object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+            object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
             object_pose = Pose()
             object_pose.orientation.w = 1.0
@@ -1258,7 +1222,7 @@ class Planning(smach.State):
             object_shape = SolidPrimitive()
             object_shape.type = userdata.object["shape"]
             object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-            object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+            object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
             object_pose = Pose()
             object_pose.orientation.w = 1.0
@@ -1430,7 +1394,7 @@ class Planning(smach.State):
         for i in xrange(self.last_state, (len(userdata.arm_positions["poses"]) - 2)):
 
             (config, error_code) = sss.compose_trajectory("arm_" + userdata.active_arm,
-                                                          userdata.arm_positions["poses"][i+1])
+                                                          userdata.arm_positions["poses"][i + 1])
             if error_code != 0:
                 rospy.logerr("unable to parse configuration")
                 return False
@@ -1441,7 +1405,7 @@ class Planning(smach.State):
             if i == 0:
                 start_state.joint_state.position = self.planer.get_current_joint_values()
             else:
-                start_state.joint_state.position =\
+                start_state.joint_state.position = \
                     userdata.computed_trajectories[i - 1].joint_trajectory.points[-1].positions
 
             if 2 <= i <= 4:
@@ -1449,7 +1413,7 @@ class Planning(smach.State):
                 object_shape = SolidPrimitive()
                 object_shape.type = userdata.object["shape"]
                 object_shape.dimensions.append(userdata.object["dimension"][2])  # Height
-                object_shape.dimensions.append(userdata.object["dimension"][0]*0.5)  # Radius
+                object_shape.dimensions.append(userdata.object["dimension"][0] * 0.5)  # Radius
 
                 object_pose = Pose()
                 object_pose.orientation.w = 1.0
@@ -1540,7 +1504,7 @@ class Execution(smach.State):
         self.planer.execute(userdata.computed_trajectories[4])
         # self.move_gripper(userdata, "gripper_" + userdata.active_arm, "open")
         if userdata.planning_method == "joint":
-            userdata.joint_goal_position =\
+            userdata.joint_goal_position = \
                 self.planer.get_current_pose(self.planer.get_end_effector_link()).pose.position
         rospy.loginfo("-------- Retreat -------")
         self.planer.execute(userdata.computed_trajectories[5])
@@ -1630,10 +1594,10 @@ class SwitchTargets(smach.State):
 
     def execute(self, userdata):
         if userdata.planning_method != "joint":
-            (userdata.arm_positions["right"]["start"], userdata.arm_positions["right"]["goal"]) =\
+            (userdata.arm_positions["right"]["start"], userdata.arm_positions["right"]["goal"]) = \
                 self.switch_values(userdata.arm_positions["right"]["start"],
                                    userdata.arm_positions["right"]["goal"])
-            (userdata.arm_positions["left"]["start"], userdata.arm_positions["left"]["goal"]) =\
+            (userdata.arm_positions["left"]["start"], userdata.arm_positions["left"]["goal"]) = \
                 self.switch_values(userdata.arm_positions["left"]["start"],
                                    userdata.arm_positions["left"]["goal"])
 
@@ -1664,18 +1628,16 @@ class Error(smach.State):
                              input_keys=['error_message'])
 
     def execute(self, userdata):
-
         rospy.logerr(userdata.error_message)
         return "finished"
 
 
 class SM(smach.StateMachine):
     def __init__(self):
-
         smach.StateMachine.__init__(self, outcomes=['ended'])
 
         # ---- INITIALIZATION ----
-        global sss, mgc_left, mgc_right, planning_scene, planning_scene_interface, pub_planning_scene,\
+        global sss, mgc_left, mgc_right, planning_scene, planning_scene_interface, pub_planning_scene, \
             planning_recorder, execution_recorder, abort_execution
         sss = simple_script_server()
         mgc_left = MoveGroupCommander("arm_left")
@@ -1733,14 +1695,12 @@ class SM(smach.StateMachine):
         self.userdata.object = {}
 
         if self.userdata.planning_method != "joint":
-
             # ---- TF BROADCASTER ----
             self.tf_listener = tf.TransformListener()
             self.br = tf.TransformBroadcaster()
             rospy.Timer(rospy.Duration.from_sec(0.01), self.broadcast_tf)
 
         with self:
-
             # ---- STATES ----
             smach.StateMachine.add('SCENE_MANAGER', SceneManager(),
                                    transitions={'succeeded': 'START_POSITION',
@@ -1789,13 +1749,39 @@ class SM(smach.StateMachine):
 
 
 class TestRecording(unittest.TestCase):
-
     def setUp(self):
         self.sm = SM()
 
-    def test_Recording(self):
+        robot_config = self.load_data(rospy.get_param('/robot_config'))
+        self.topics = robot_config['wait_for_topics']
+        self.services = robot_config['wait_for_services']
 
+    def tearDown(self):
+        call("killall gzclient", shell=True)
+        call("killall gzserver", shell=True)
+
+    def test_Recording(self):
+        # Wait for topics and services
+        rospy.loginfo("Waiting for topics...")
+        for topic in self.topics:
+            rospy.wait_for_message(topic, rostopic.get_topic_class(topic, blocking=True)[0], timeout=None)
+
+        rospy.loginfo("Waiting for services...")
+        for service in self.services:
+            rospy.wait_for_service(service, timeout=None)
+
+        rospy.loginfo("Test is ready!")
         self.sm.execute()
+
+    @staticmethod
+    def load_data(filename):
+        rospy.loginfo("Reading data from yaml file...")
+
+        with open(filename, 'r') as stream:
+            doc = yaml.load(stream)
+
+        return doc
+
 
 if __name__ == '__main__':
     rospy.init_node('test_recording')
@@ -1803,4 +1789,4 @@ if __name__ == '__main__':
         sm = SM()
         sm.execute()
     else:
-        rostest.rosrun("cob_grasping_app", 'test_recording', TestRecording, sysargs=None)
+        rostest.rosrun("cob_grasping_app", 'test_recording', TestRecording, sysargs=None)  # sysargs=['--text']

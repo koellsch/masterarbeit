@@ -1,5 +1,14 @@
 path_length:
-  topics: ["/tf"]
+  topics:
+    - "/tf"
 obstacle_distance:
-  topics: ["/atf/obstacle_distance"]
-robot_bringup_launch: "cob_bringup_sim/launch/robot.launch"
+  topics:
+    - "/atf/obstacle_distance"
+  robot_description: "robot_description"
+robot_bringup_launch: "cob_grasping_app/launch/robot.launch"
+wait_for_topics:
+  - "/joint_states"
+wait_for_services:
+  - "/get_planning_scene"
+additional_parameter: []
+additional_arguments: []

@@ -16,6 +16,7 @@
 
     <buildtool_depend>catkin</buildtool_depend>
     <depend>rospy</depend>
+    <build_depend>atf_core</build_depend>
     <test_depend>rostest</test_depend>
 
 </package>
