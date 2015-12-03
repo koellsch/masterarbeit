@@ -5,10 +5,10 @@ import unittest
 import rostest
 import rostopic
 import yaml
+import sys
 
 from tf import transformations, TransformListener, TransformBroadcaster
 from atf_recorder import RecordingManager
-from atf_msgs.msg import *
 from subprocess import call
 
 
