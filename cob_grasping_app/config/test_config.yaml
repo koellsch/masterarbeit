@@ -18,3 +18,10 @@ test_1:
       - [base_link, gripper_right_grasp_link]
     obstacle_distance:
       - [gripper_right_grasp_link]
+    publish_rate:
+      topics:
+        - "/tf"
+      hz:
+        - 100
+      error:
+        - 5
