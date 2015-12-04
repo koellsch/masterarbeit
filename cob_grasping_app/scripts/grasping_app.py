@@ -1,26 +1,24 @@
 #!/usr/bin/python
 import rospkg
-import smach
-import tf
-import yaml
 import unittest
+import yaml
+from copy import copy
+from pyassimp import pyassimp
+from re import findall
+from subprocess import call
+
 import rostest
 import rostopic
-
-from pyassimp import pyassimp
-from copy import copy
-from re import findall
-
+import smach
+import tf
+from atf_recorder import RecordingManager
+from interactive_markers.interactive_marker_server import *
+from interactive_markers.menu_handler import *
 from moveit_commander import MoveGroupCommander, PlanningSceneInterface
 from moveit_msgs.msg import RobotState, AttachedCollisionObject, CollisionObject, PlanningScene, RobotTrajectory
 from shape_msgs.msg import MeshTriangle, Mesh, SolidPrimitive
-from interactive_markers.interactive_marker_server import *
-from interactive_markers.menu_handler import *
-from visualization_msgs.msg import InteractiveMarkerControl, Marker
-
 from simple_script_server import *
-from atf_recorder import RecordingManager
-from subprocess import call
+from visualization_msgs.msg import InteractiveMarkerControl, Marker
 
 
 def smooth_cartesian_path(traj):
