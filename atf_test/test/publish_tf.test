@@ -3,5 +3,6 @@
     <param name="use_sim_time" value="false" />
 
     <arg name="time_limit" />
+    <node name="talker" output="screen" pkg="atf_test" type="publisher.py"/>
     <test test-name="test_recording" pkg="atf_test" type="publish_tf.py" time-limit="$(arg time_limit)" />
 </launch>
