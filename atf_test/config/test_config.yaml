@@ -11,6 +11,17 @@ test_1:
       error:
         - 10
         - 10
+    interface:
+      timeout: 10
+      publisher: [
+        topic: "/test"
+        type: String,
+        topic: "/test2"
+        type: int
+      ]
+      subscriber: []
+      services: []
+      actions: []
   test1:
     time:
     path_length:
