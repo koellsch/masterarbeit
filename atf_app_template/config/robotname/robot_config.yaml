@@ -1,9 +1,7 @@
 path_length:                                          # Topics for the metric 'path_length'
   topics:
     - "tf topic name"
-obstacle_distance:                                    # Topics for the metric 'obstacle_distance'. Do not alter!!!
-  topics:
-    - "/atf/obstacle_distance"
+obstacle_distance:                                    # Service for the metric 'obstacle_distance'. Do not alter!!!
   services:
     - "/atf/get_obstacle_distance"
   robot_description: "name of robot description"      # Name of the robot description
