@@ -13,15 +13,7 @@ test_1:
         - 10
     interface:
       timeout: 10
-      publisher: [
-        topic: "/test"
-        type: String,
-        topic: "/test2"
-        type: int
-      ]
-      subscriber: []
-      services: []
-      actions: []
+      publisher: ["test", "test2"]
   test1:
     time:
     path_length:
